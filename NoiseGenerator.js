@@ -16,4 +16,4 @@ class NoiseProcessor extends AudioWorkletProcessor
 }
 
 // Register the processor so it can be used in the AudioWorkletNode
-registerProcessor('NoiseGeneator', NoiseProcessor);
+registerProcessor('NoiseGenerator', NoiseProcessor);
