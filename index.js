@@ -5,7 +5,7 @@ let gainNode;
 function getLogFrequency(value) 
 {
     const minFrequency = 20;
-    const maxFrequency = 18000;
+    const maxFrequency = 20000;
     return minFrequency * Math.pow(maxFrequency / minFrequency, value);
 }
 
@@ -25,11 +25,15 @@ async function StartAudio()
     // await audioContext.audioWorklet.addModule('NoiseGenerator.js');
     // noiseSource = new AudioWorkletNode(audioContext, 'NoiseGenerator');
 
-    await audioContext.audioWorklet.addModule('BiquadFilter.js');
-    biquadFilter = new AudioWorkletNode(audioContext, 'MyFilter');
-
     await audioContext.audioWorklet.addModule('PinkNoise.js');
     pinkNoise = new AudioWorkletNode(audioContext, 'PinkNoise');
+
+    await audioContext.audioWorklet.addModule('BiquadFilter.js');
+    biquadFilter = new AudioWorkletNode(audioContext, 'MyFilter');
+    
+    await audioContext.audioWorklet.addModule('OnePoleLowpass.js');
+    onePoleLowpass = new AudioWorkletNode(audioContext, 'OnePoleLowpass');
+
 
     // ================================================================
     // Connections
@@ -39,7 +43,8 @@ async function StartAudio()
     // filterNode.connect(gainNode);
 
     pinkNoise.connect(biquadFilter);
-    biquadFilter.connect(gainNode);
+    biquadFilter.connect(onePoleLowpass);
+    onePoleLowpass.connect(gainNode);
     gainNode.connect(audioContext.destination);
     // ================================================================
 }
@@ -61,8 +66,14 @@ document.getElementById('volume-slider').addEventListener('input', function()
     }
 });
 
-document.getElementById('filter-slider').addEventListener('input', function() 
+document.getElementById('filter-slider-butterworth').addEventListener('input', function() 
 {
     const frequency = getLogFrequency(this.value);
-    biquadFilter.parameters.get("frequency").setValueAtTime(frequency, audioContext.currentTime)
+    biquadFilter.parameters.get("freqency").setValueAtTime(frequency, audioContext.currentTime)
+});
+
+document.getElementById('filter-slider-onepole').addEventListener('input', function() 
+{
+    const frequency = getLogFrequency(this.value);
+    onePoleLowpass.parameters.get("freqency").setValueAtTime(frequency, audioContext.currentTime)
 });

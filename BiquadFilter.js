@@ -13,7 +13,7 @@ class MyFilter extends AudioWorkletProcessor
         this.d0 = 0.0;
 
         this.Fc = 5000.0;
-        this.Fs = 44100;
+        this.Fs = sampleRate;
         this.Q = 1.0;
 
         this.xz1 = 0.0;
@@ -31,10 +31,10 @@ class MyFilter extends AudioWorkletProcessor
     static get parameterDescriptors() {
     return [
         {
-        name: "frequency",
+        name: "freqency",
         defaultValue: 440.0,
         minValue: 20.0,
-        maxValue: 18000.0
+        maxValue: 2000.0
         }
     ];
     }
@@ -67,7 +67,7 @@ class MyFilter extends AudioWorkletProcessor
 
     process(inputs, outputs, parameters) 
     {
-        this.Fc = parameters.frequency[0];
+        this.Fc = parameters.freqency[0];
         this.setCoef();
 
         for (let i = 0; i < outputs.length; i++)
