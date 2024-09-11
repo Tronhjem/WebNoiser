@@ -1,6 +1,8 @@
 let audioContext;
 let gainNode;
 let filterNode;
+// let biquadFilter;
+// let noiseSource;
 
 const minFrequency = 20;
 const maxFrequency = 18000;
@@ -22,7 +24,11 @@ async function StartAudio()
     await audioContext.audioWorklet.addModule('NoiseGenerator.js');
     noiseSource = new AudioWorkletNode(audioContext, 'NoiseGenerator');
 
-    noiseSource.connect(filterNode);
+    await audioContext.audioWorklet.addModule('BiquadFilter.js');
+    biquadFilter = new AudioWorkletNode(audioContext, 'MyFilter');
+
+    noiseSource.connect(biquadFilter);
+    biquadFilter.connect(filterNode);
     filterNode.connect(gainNode);
     gainNode.connect(audioContext.destination);
 }
