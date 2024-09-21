@@ -4,11 +4,15 @@ let analyser;
 let bufferLength;
 let dataArray; 
 let filters = [];
-// const canvas = document.getElementById('frequency-canvas');
-// const canvasCtx = canvas.getContext('2d');
+let globalFilterIdCounter = 0;
+const canvas = document.getElementById('frequency-canvas');
+const canvasCtx = canvas ? canvas.getContext('2d') : null;
 
 // Draw the frequency spectrum
 function draw() {
+    if (!canvasCtx){
+        return;
+    }
     requestAnimationFrame(draw);
 
     analyser.getByteFrequencyData(dataArray);
@@ -47,13 +51,6 @@ async function StartAudio()
     // Node Setup
     // ================================================================
 
-    // filterNode = audioContext.createBiquadFilter();
-    // filterNode.type = 'lowpass';
-    // filterNode.frequency.value = getLogFrequency(0.5); 
-
-    // await audioContext.audioWorklet.addModule('NoiseGenerator.js');
-    // noiseSource = new AudioWorkletNode(audioContext, 'NoiseGenerator');
-
     await audioContext.audioWorklet.addModule('PinkNoise.js');
     pinkNoise = new AudioWorkletNode(audioContext, 'PinkNoise');
 
@@ -76,36 +73,88 @@ async function StartAudio()
 
     pinkNoise.connect(biquadFilter);
     biquadFilter.connect(onePoleLowpass);
-    onePoleLowpass.connect(gainNode);
+    onePoleLowpass.connect(analyser);
+    analyser.connect(gainNode);
     gainNode.connect(audioContext.destination);
     // ================================================================
 
-    // draw();
+    draw();
+}
+
+function fromRealValueToDialValue(value, min, max, dialMax)
+{
+    return (( value - min) / (max - min)) * dialMax;
+}
+
+function fromDialValueToRealValue(value, min, max, dialMax)
+{
+    return (value / dialMax) * (max - min) + min;
+}
+
+function createDial(filter, property, min, max, initialValue, isLog = false) {
+    const dialMax = 100.0;
+    const dialMin = 0.0;
+    const container = document.createElement('div');
+    container.classList.add('dial-container');
+
+    const dial = document.createElement('div');
+    dial.classList.add('dial');
+
+    const indicator = document.createElement('div');
+    indicator.classList.add('dial-indicator');
+    dial.appendChild(indicator);
+
+    let value = ( initialValue - min) / (max - min) * dialMax;
+    let isDragging = false;
+    let startY = 0;
+  
+    function updateDial() {
+        const angle = (value / dialMax ) * 270 - 135;
+        indicator.style.transform = `translate(-50%, -100%) rotate(${angle}deg)`;
+
+        if (isLog){
+            let logValue = min * Math.pow(max / min, value / dialMax); 
+            console.log(logValue);
+            filter[property].setValueAtTime(logValue, audioContext.currentTime);
+        }
+        else{
+            const setValue = (value / dialMax) * (max - min) + min; 
+            filter[property].setValueAtTime(setValue, audioContext.currentTime);
+        }
+    }
+
+    dial.addEventListener('mousedown', (event) => {
+        isDragging = true;
+        startY = event.clientY;
+        event.preventDefault();
+    });
+
+    document.addEventListener('mousemove', (event) => {
+        if (isDragging) {
+            const deltaY = startY - event.clientY;
+            value += deltaY * 1;
+            value = Math.max(dialMin, Math.min(dialMax, value));
+            startY = event.clientY;
+            updateDial();
+        }
+    });
+
+    document.addEventListener('mouseup', () => {
+        isDragging = false;
+    });
+
+    updateDial();
+    container.appendChild(dial);
+    return container;
 }
 
 function createFilterControls(filter, index) {
     const container = document.createElement('div');
     container.classList.add('filter-controls');
 
-    const frequencySlider = document.createElement('input');
-    frequencySlider.type = 'range';
-    frequencySlider.min = '20';
-    frequencySlider.max = '20000';
-    frequencySlider.step = '1';
-    frequencySlider.value = filter.frequency.value;
-    frequencySlider.addEventListener('input', () => {
-        filter.frequency.setValueAtTime(frequencySlider.value, audioContext.currentTime);
-    });
-
-    const qSlider = document.createElement('input');
-    qSlider.type = 'range';
-    qSlider.min = '0.1';
-    qSlider.max = '100';
-    qSlider.step = '0.1';
-    qSlider.value = filter.Q.value;
-    qSlider.addEventListener('input', () => {
-        filter.Q.setValueAtTime(qSlider.value, audioContext.currentTime);
-    });
+    const frequencyDial = createDial(filter, 'frequency', 20.0, 20000.0, 1000.0, true);
+    const qDial = createDial(filter, 'Q', 0.1, 10, 0);
+    const gainDial = createDial(filter, 'gain', -25, 25, 0);
 
     const typeSelector = document.createElement('select');
     ['lowpass', 'highpass', 'bandpass', 'lowshelf', 'highshelf', 'peaking', 'notch', 'allpass'].forEach(type => {
@@ -119,15 +168,33 @@ function createFilterControls(filter, index) {
         filter.type = typeSelector.value;
     });
 
+    const removeButton = document.createElement('button');
+    removeButton.textContent = 'Remove';
+    removeButton.addEventListener('click', () => {
+        const index = filters.indexOf(filter);
+        filters.splice(index, 1);
+        container.remove();
+        updateAudioGraph();
+    });
+
     container.appendChild(document.createTextNode(`Filter ${index + 1}`));
     container.appendChild(document.createElement('br'));
-    container.appendChild(frequencySlider);
+    container.appendChild(frequencyDial);
     container.appendChild(document.createTextNode(' Frequency'));
-    container.appendChild(document.createElement('br'));
-    container.appendChild(qSlider);
+    // container.appendChild(document.createElement('br'));
+
+    container.appendChild(qDial);
     container.appendChild(document.createTextNode(' Q'));
+    // container.appendChild(document.createElement('br'));
+
+    container.appendChild(gainDial);
+    container.appendChild(document.createTextNode(' Gain'));
     container.appendChild(document.createElement('br'));
+
     container.appendChild(typeSelector);
+    // container.appendChild(document.createElement('br'));
+
+    container.appendChild(removeButton);
     container.appendChild(document.createElement('br'));
 
     document.getElementById('filter-controls-container').appendChild(container);
@@ -135,24 +202,17 @@ function createFilterControls(filter, index) {
 
 function addFilter() {
     const filter = audioContext.createBiquadFilter();
+    globalFilterIdCounter++;
     filters.push(filter);
     updateAudioGraph();
-    createFilterControls(filter, filters.length - 1);
-}
-
-function removeFilter() {
-    if (filters.length > 0) {
-        filters.pop();
-        updateAudioGraph();
-        const container = document.getElementById('filter-controls-container');
-        container.removeChild(container.lastChild);
-    }
+    createFilterControls(filter, globalFilterIdCounter);
 }
 
 function updateAudioGraph() {
     pinkNoise.disconnect();
     onePoleLowpass.disconnect();
     biquadFilter.disconnect();
+    analyser.disconnect();
     gainNode.disconnect();
 
     filters.forEach(filter => {
@@ -167,7 +227,8 @@ function updateAudioGraph() {
 
     previousNode.connect(biquadFilter)
     biquadFilter.connect(onePoleLowpass);
-    onePoleLowpass.connect(gainNode);
+    onePoleLowpass.connect(analyser);
+    analyser.connect(gainNode); 
     gainNode.connect(audioContext.destination);
 }
 
@@ -181,7 +242,6 @@ document.getElementById('play-button').addEventListener('click', async () =>
 });
 
 document.getElementById('add-filter-button').addEventListener('click', addFilter);
-document.getElementById('remove-filter-button').addEventListener('click', removeFilter);
 
 document.getElementById('volume-slider').addEventListener('input', function() 
 {

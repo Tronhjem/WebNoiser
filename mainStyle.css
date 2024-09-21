@@ -1,10 +1,10 @@
 /* Set the general background color to black */
 body {
-    background-color: black;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
+    /* background-color: black; */
+    /* display: flex; */
+    /* justify-content: center; */
+    /* align-items: center; */
+    /* height: 100vh; */
     margin: 0; /* Remove default margin */
 }
 
@@ -35,4 +35,32 @@ path {
 
 canvas {
     border: 1px solid white;
+}
+
+.dial-container {
+    display: inline-block;
+    position: relative;
+    width: 50px;
+    height: 50px;
+    margin: 10px;
+}
+
+.dial {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: #ccc;
+    position: relative;
+    cursor: pointer;
+}
+
+.dial-indicator {
+    width: 4px;
+    height: 20px;
+    background: #333;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform-origin: bottom center;
+    transform: translate(-50%, -100%) rotate(0deg);
 }
