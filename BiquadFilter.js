@@ -34,7 +34,7 @@ class MyFilter extends AudioWorkletProcessor
         name: "freqency",
         defaultValue: 440.0,
         minValue: 20.0,
-        maxValue: 2000.0
+        maxValue: 20000.0
         }
     ];
     }
