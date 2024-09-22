@@ -1,19 +1,109 @@
-let audioContext  
+let audioContext; 
 let gainNode;
 let analyser;
 let bufferLength;
 let dataArray; 
-let filters = [];
+// let filters = [];
+
+let biquadFilter;
+let onePoleLowpass;
+
 let globalFilterIdCounter = 0;
 const canvas = document.getElementById('frequency-canvas');
 const canvasCtx = canvas ? canvas.getContext('2d') : null;
 
-// Draw the frequency spectrum
-function draw() {
+let globalValueTree = {
+    biquadFilter: {
+        frequency: 1,
+    },
+    onePoleLowpass: {
+        frequency: 1
+    },
+    volume: 0.5,
+    filters: []
+};
+
+function saveValues() {
+    const json = JSON.stringify(globalValueTree);
+    localStorage.setItem('globalvalues', JSON.stringify(globalValueTree));
+    console.log(json);
+}
+
+function loadValues() {
+    globalValueTree = JSON.parse(localStorage.getItem('globalvalues'));
+
+    const butterworthSlider = document.getElementById('filter-slider-butterworth');
+    const onePoleSlider = document.getElementById('filter-slider-onepole');
+    const volumeSlider = document.getElementById('volume-slider');
+
+    butterworthSlider.value = globalValueTree.biquadFilter.frequency;
+    onePoleSlider.value = globalValueTree.onePoleLowpass.frequency;
+    volumeSlider.value = globalValueTree.volume;
+
+    // Dispatch input events to trigger event listeners
+    butterworthSlider.dispatchEvent(new Event('input'));
+    onePoleSlider.dispatchEvent(new Event('input'));
+    volumeSlider.dispatchEvent(new Event('input'));
+}
+
+function onPageLoad() {
+    localStorage.clear();
+    // loadValues();
+}
+
+window.addEventListener('load', onPageLoad);
+
+document.getElementById('play-button').addEventListener('click', async () => 
+{
+    if (!audioContext) 
+    {
+        await StartAudio();
+    }
+    audioContext.resume();
+});
+
+document.getElementById('add-filter-button').addEventListener('click', addFilter);
+document.getElementById('save-button').addEventListener('click', saveValues);
+document.getElementById('load-button').addEventListener('click', loadValues);
+
+document.getElementById('filter-slider-butterworth').addEventListener('input', (event) => setButterWorthValues(event.target.value));
+document.getElementById('filter-slider-onepole').addEventListener('input', (event) => setOnePoleValues(event.target.value));
+document.getElementById('volume-slider').addEventListener('input', (event) => setVolume(event.target.value));
+
+function setVolume(value)
+{
+    if (gainNode){
+        gainNode.gain = this.value;
+        globalValueTree.volume = value;
+        console.log(globalValueTree.volume);
+    }
+}
+
+function setButterWorthValues(value)
+{
+    if(biquadFilter){
+        const frequency = getLogFrequency(value);
+        biquadFilter.parameters.get("freqency").setValueAtTime(frequency, audioContext.currentTime)
+        globalValueTree.biquadFilter.frequency = value;
+        console.log(globalValueTree.biquadFilter.frequency);
+    }
+}
+
+function setOnePoleValues(value)
+{
+    if(onePoleLowpass){
+        const frequency = getLogFrequency(value);
+        onePoleLowpass.parameters.get("freqency").setValueAtTime(frequency, audioContext.currentTime)
+        globalValueTree.onePoleLowpass.frequency = value;
+        console.log(globalValueTree.onePoleLowpass.frequency);
+    }
+}
+
+function drawSpectrum() {
     if (!canvasCtx){
         return;
     }
-    requestAnimationFrame(draw);
+    requestAnimationFrame(drawSpectrum);
 
     analyser.getByteFrequencyData(dataArray);
 
@@ -78,17 +168,7 @@ async function StartAudio()
     gainNode.connect(audioContext.destination);
     // ================================================================
 
-    draw();
-}
-
-function fromRealValueToDialValue(value, min, max, dialMax)
-{
-    return (( value - min) / (max - min)) * dialMax;
-}
-
-function fromDialValueToRealValue(value, min, max, dialMax)
-{
-    return (value / dialMax) * (max - min) + min;
+    drawSpectrum();
 }
 
 function createDial(filter, property, min, max, initialValue, isLog = false) {
@@ -148,13 +228,13 @@ function createDial(filter, property, min, max, initialValue, isLog = false) {
     return container;
 }
 
-function createFilterControls(filter, index) {
+function createFilterControls(filter) {
     const container = document.createElement('div');
     container.classList.add('filter-controls');
 
-    const frequencyDial = createDial(filter, 'frequency', 20.0, 20000.0, 1000.0, true);
-    const qDial = createDial(filter, 'Q', 0.1, 10, 0);
-    const gainDial = createDial(filter, 'gain', -25, 25, 0);
+    const frequencyDial = createDial(filter, 'frequency', 20.0, 20000.0, filter.frequency.value, true);
+    const qDial = createDial(filter, 'Q', 0.1, 10, filter.Q.value, false);
+    const gainDial = createDial(filter, 'gain', -25, 25, filter.gain.value, false);
 
     const typeSelector = document.createElement('select');
     ['lowpass', 'highpass', 'bandpass', 'lowshelf', 'highshelf', 'peaking', 'notch', 'allpass'].forEach(type => {
@@ -171,41 +251,38 @@ function createFilterControls(filter, index) {
     const removeButton = document.createElement('button');
     removeButton.textContent = 'Remove';
     removeButton.addEventListener('click', () => {
-        const index = filters.indexOf(filter);
-        filters.splice(index, 1);
+        const index = globalValueTree.filters.indexOf(filter);
+        globalValueTree.filters.splice(index, 1);
         container.remove();
         updateAudioGraph();
     });
 
-    container.appendChild(document.createTextNode(`Filter ${index + 1}`));
     container.appendChild(document.createElement('br'));
+    
     container.appendChild(frequencyDial);
-    container.appendChild(document.createTextNode(' Frequency'));
-    // container.appendChild(document.createElement('br'));
-
     container.appendChild(qDial);
-    container.appendChild(document.createTextNode(' Q'));
-    // container.appendChild(document.createElement('br'));
-
     container.appendChild(gainDial);
-    container.appendChild(document.createTextNode(' Gain'));
-    container.appendChild(document.createElement('br'));
-
     container.appendChild(typeSelector);
-    // container.appendChild(document.createElement('br'));
-
     container.appendChild(removeButton);
     container.appendChild(document.createElement('br'));
+
+    container.appendChild(document.createTextNode(' Frequency'));
+    container.appendChild(document.createTextNode(' Q'));
+    container.appendChild(document.createTextNode(' Gain'));
 
     document.getElementById('filter-controls-container').appendChild(container);
 }
 
 function addFilter() {
     const filter = audioContext.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.Q.value = 1.0;
+    filter.frequency.value = 18000.0;
+    filter.gain.value = 0.0;    
     globalFilterIdCounter++;
-    filters.push(filter);
+    globalValueTree.filters.push(filter);
     updateAudioGraph();
-    createFilterControls(filter, globalFilterIdCounter);
+    createFilterControls(filter);
 }
 
 function updateAudioGraph() {
@@ -215,12 +292,12 @@ function updateAudioGraph() {
     analyser.disconnect();
     gainNode.disconnect();
 
-    filters.forEach(filter => {
+    globalValueTree.filters.forEach(filter => {
         filter.disconnect();
     });
 
     let previousNode = pinkNoise;
-    filters.forEach(filter => {
+    globalValueTree.filters.forEach(filter => {
         previousNode.connect(filter);
         previousNode = filter;
     });
@@ -231,34 +308,3 @@ function updateAudioGraph() {
     analyser.connect(gainNode); 
     gainNode.connect(audioContext.destination);
 }
-
-document.getElementById('play-button').addEventListener('click', async () => 
-{
-    if (!audioContext) 
-    {
-        await StartAudio();
-    }
-    audioContext.resume();
-});
-
-document.getElementById('add-filter-button').addEventListener('click', addFilter);
-
-document.getElementById('volume-slider').addEventListener('input', function() 
-{
-    if (gainNode) 
-    {
-        gainNode.gain.value = this.value;
-    }
-});
-
-document.getElementById('filter-slider-butterworth').addEventListener('input', function() 
-{
-    const frequency = getLogFrequency(this.value);
-    biquadFilter.parameters.get("freqency").setValueAtTime(frequency, audioContext.currentTime)
-});
-
-document.getElementById('filter-slider-onepole').addEventListener('input', function() 
-{
-    const frequency = getLogFrequency(this.value);
-    onePoleLowpass.parameters.get("freqency").setValueAtTime(frequency, audioContext.currentTime)
-});
