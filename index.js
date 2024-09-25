@@ -3,14 +3,21 @@ let gainNode;
 let analyser;
 let bufferLength;
 let dataArray; 
-// let filters = [];
+let filters = [];
 
 let biquadFilter;
 let onePoleLowpass;
 
-let globalFilterIdCounter = 0;
 const canvas = document.getElementById('frequency-canvas');
 const canvasCtx = canvas ? canvas.getContext('2d') : null;
+
+
+FilterValues = {
+    type : 'lowpass',
+    frequency: 18000,
+    Q: 1.0,
+    gain: 0.0,
+}
 
 let globalValueTree = {
     biquadFilter: {
@@ -20,16 +27,31 @@ let globalValueTree = {
         frequency: 1
     },
     volume: 0.5,
-    filters: []
+    filterSettings: []
 };
 
 function saveValues() {
     const json = JSON.stringify(globalValueTree);
+    globalValueTree.filterSettings = [];
+
+    globalValueTree.filterSettings = filters.map(filter => {
+        return {
+            type: filter.type,
+            frequency: filter.frequency.value,
+            Q: filter.Q.value,
+            gain: filter.gain.value
+        };
+    });
+
+    console.log(globalValueTree);
     localStorage.setItem('globalvalues', JSON.stringify(globalValueTree));
-    console.log(json);
 }
 
 function loadValues() {
+
+    disconnnectAll();
+    filters = [];
+
     globalValueTree = JSON.parse(localStorage.getItem('globalvalues'));
 
     const butterworthSlider = document.getElementById('filter-slider-butterworth');
@@ -44,6 +66,13 @@ function loadValues() {
     butterworthSlider.dispatchEvent(new Event('input'));
     onePoleSlider.dispatchEvent(new Event('input'));
     volumeSlider.dispatchEvent(new Event('input'));
+
+    globalValueTree.filterSettings.forEach(filter => {
+        addFilterNoAudioUpdate(filter.type, filter.frequency.value, filter.Q.value, filter.gain.value);
+    });
+
+    updateAudioGraph();
+
 }
 
 function onPageLoad() {
@@ -196,6 +225,7 @@ function createDial(filter, property, min, max, initialValue, isLog = false) {
             let logValue = min * Math.pow(max / min, value / dialMax); 
             console.log(logValue);
             filter[property].setValueAtTime(logValue, audioContext.currentTime);
+
         }
         else{
             const setValue = (value / dialMax) * (max - min) + min; 
@@ -251,8 +281,8 @@ function createFilterControls(filter) {
     const removeButton = document.createElement('button');
     removeButton.textContent = 'Remove';
     removeButton.addEventListener('click', () => {
-        const index = globalValueTree.filters.indexOf(filter);
-        globalValueTree.filters.splice(index, 1);
+        const index = filters.indexOf(filter);
+        filters.splice(index, 1);
         container.remove();
         updateAudioGraph();
     });
@@ -273,16 +303,54 @@ function createFilterControls(filter) {
     document.getElementById('filter-controls-container').appendChild(container);
 }
 
-function addFilter() {
+function addFilter(type = 'lowpass', frequency = 18000.0, Q = 1.0, gain = 0.0) {
     const filter = audioContext.createBiquadFilter();
-    filter.type = 'lowpass';
-    filter.Q.value = 1.0;
-    filter.frequency.value = 18000.0;
-    filter.gain.value = 0.0;    
-    globalFilterIdCounter++;
-    globalValueTree.filters.push(filter);
+    filter.type = type;
+    filter.frequency.value = frequency;
+    filter.Q.value = Q;
+    filter.gain.value = gain;    
+    
+    filters.push(filter);
+    
     updateAudioGraph();
     createFilterControls(filter);
+}
+
+function addFilterNoAudioUpdate(type = 'lowpass', frequency = 18000.0, Q = 1.0, gain = 0.0) {
+    const filter = audioContext.createBiquadFilter();
+    filter.type = type;
+    filter.frequency.value = frequency;
+    filter.Q.value = Q;
+    filter.gain.value = gain;    
+
+    filters.push(filter);
+    createFilterControls(filter);
+}
+
+function disconnnectAll(){
+    pinkNoise.disconnect();
+    onePoleLowpass.disconnect();
+    biquadFilter.disconnect();
+    analyser.disconnect();
+    gainNode.disconnect();
+
+    filters.forEach(filter => {
+        filter.disconnect();
+    });
+}
+
+function connectAll(){
+    let previousNode = pinkNoise;
+    filters.forEach(filter => {
+        previousNode.connect(filter);
+        previousNode = filter;
+    });
+
+    previousNode.connect(biquadFilter)
+    biquadFilter.connect(onePoleLowpass);
+    onePoleLowpass.connect(analyser);
+    analyser.connect(gainNode); 
+    gainNode.connect(audioContext.destination);
 }
 
 function updateAudioGraph() {
@@ -292,12 +360,12 @@ function updateAudioGraph() {
     analyser.disconnect();
     gainNode.disconnect();
 
-    globalValueTree.filters.forEach(filter => {
+    filters.forEach(filter => {
         filter.disconnect();
     });
 
     let previousNode = pinkNoise;
-    globalValueTree.filters.forEach(filter => {
+    filters.forEach(filter => {
         previousNode.connect(filter);
         previousNode = filter;
     });
