@@ -11,14 +11,6 @@ let onePoleLowpass;
 const canvas = document.getElementById('frequency-canvas');
 const canvasCtx = canvas ? canvas.getContext('2d') : null;
 
-
-FilterValues = {
-    type : 'lowpass',
-    frequency: 18000,
-    Q: 1.0,
-    gain: 0.0,
-}
-
 let globalValueTree = {
     biquadFilter: {
         frequency: 1,
@@ -42,15 +34,21 @@ function saveValues() {
         };
     });
 
-    console.log(globalValueTree);
     localStorage.setItem('globalvalues', JSON.stringify(globalValueTree));
 }
 
 function loadValues() {
 
     disconnnectAll();
-    filters = [];
 
+    const filterControlsContainer = document.getElementById('filter-controls-container');
+
+    while (filterControlsContainer.firstChild) {
+        filterControlsContainer.removeChild(filterControlsContainer.firstChild);
+    }
+
+    filters = [];
+ 
     globalValueTree = JSON.parse(localStorage.getItem('globalvalues'));
 
     const butterworthSlider = document.getElementById('filter-slider-butterworth');
@@ -61,7 +59,6 @@ function loadValues() {
     onePoleSlider.value = globalValueTree.onePoleLowpass.frequency;
     volumeSlider.value = globalValueTree.volume;
 
-    // Dispatch input events to trigger event listeners
     butterworthSlider.dispatchEvent(new Event('input'));
     onePoleSlider.dispatchEvent(new Event('input'));
     volumeSlider.dispatchEvent(new Event('input'));
@@ -70,8 +67,8 @@ function loadValues() {
         addFilterNoAudioUpdate(filter.type, filter.frequency, filter.Q, filter.gain);
     });
 
-    updateAudioGraph();
-    console.log(globalValueTree);
+    connectAll();
+
 }
 
 function onPageLoad() {
@@ -92,7 +89,7 @@ document.getElementById('play-button').addEventListener('click', async () =>
 document.getElementById('add-filter-button').addEventListener('click', addFilter);
 document.getElementById('save-button').addEventListener('click', saveValues);
 document.getElementById('load-button').addEventListener('click', loadValues);
-document.getElementById('clear-local-storage').addEventListener('click', loadValues);
+document.getElementById('clear-local-storage').addEventListener('click', clearLocalStorage);
 
 document.getElementById('filter-slider-butterworth').addEventListener('input', (event) => setButterWorthValues(event.target.value));
 document.getElementById('filter-slider-onepole').addEventListener('input', (event) => setOnePoleValues(event.target.value));
@@ -108,7 +105,6 @@ function setVolume(value)
     if (gainNode){
         gainNode.gain = this.value;
         globalValueTree.volume = value;
-        console.log(globalValueTree.volume);
     }
 }
 
@@ -118,7 +114,6 @@ function setButterWorthValues(value)
         const frequency = getLogFrequency(value);
         biquadFilter.parameters.get("freqency").setValueAtTime(frequency, audioContext.currentTime)
         globalValueTree.biquadFilter.frequency = value;
-        console.log(globalValueTree.biquadFilter.frequency);
     }
 }
 
@@ -128,7 +123,6 @@ function setOnePoleValues(value)
         const frequency = getLogFrequency(value);
         onePoleLowpass.parameters.get("freqency").setValueAtTime(frequency, audioContext.currentTime)
         globalValueTree.onePoleLowpass.frequency = value;
-        console.log(globalValueTree.onePoleLowpass.frequency);
     }
 }
 
@@ -217,7 +211,14 @@ function createDial(filter, property, min, max, initialValue, isLog = false) {
     indicator.classList.add('dial-indicator');
     dial.appendChild(indicator);
 
-    let value = ( initialValue - min) / (max - min) * dialMax;
+    let value = 0;
+    if(isLog){
+        value = (dialMax * Math.log(initialValue / min)) / Math.log(max / min);
+    }
+    else{
+        value = ( initialValue - min) / (max - min) * dialMax;
+    }
+
     let isDragging = false;
     let startY = 0;
   
@@ -227,9 +228,7 @@ function createDial(filter, property, min, max, initialValue, isLog = false) {
 
         if (isLog){
             let logValue = min * Math.pow(max / min, value / dialMax); 
-            console.log(logValue);
             filter[property].setValueAtTime(logValue, audioContext.currentTime);
-
         }
         else{
             const setValue = (value / dialMax) * (max - min) + min; 
