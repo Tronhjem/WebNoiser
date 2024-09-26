@@ -31,7 +31,6 @@ let globalValueTree = {
 };
 
 function saveValues() {
-    const json = JSON.stringify(globalValueTree);
     globalValueTree.filterSettings = [];
 
     globalValueTree.filterSettings = filters.map(filter => {
@@ -68,15 +67,14 @@ function loadValues() {
     volumeSlider.dispatchEvent(new Event('input'));
 
     globalValueTree.filterSettings.forEach(filter => {
-        addFilterNoAudioUpdate(filter.type, filter.frequency.value, filter.Q.value, filter.gain.value);
+        addFilterNoAudioUpdate(filter.type, filter.frequency, filter.Q, filter.gain);
     });
 
     updateAudioGraph();
-
+    console.log(globalValueTree);
 }
 
 function onPageLoad() {
-    localStorage.clear();
     // loadValues();
 }
 
@@ -94,10 +92,16 @@ document.getElementById('play-button').addEventListener('click', async () =>
 document.getElementById('add-filter-button').addEventListener('click', addFilter);
 document.getElementById('save-button').addEventListener('click', saveValues);
 document.getElementById('load-button').addEventListener('click', loadValues);
+document.getElementById('clear-local-storage').addEventListener('click', loadValues);
 
 document.getElementById('filter-slider-butterworth').addEventListener('input', (event) => setButterWorthValues(event.target.value));
 document.getElementById('filter-slider-onepole').addEventListener('input', (event) => setOnePoleValues(event.target.value));
 document.getElementById('volume-slider').addEventListener('input', (event) => setVolume(event.target.value));
+
+
+function clearLocalStorage(){
+    localStorage.clear();
+}
 
 function setVolume(value)
 {
