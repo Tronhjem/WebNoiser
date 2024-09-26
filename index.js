@@ -103,7 +103,8 @@ function clearLocalStorage(){
 function setVolume(value)
 {
     if (gainNode){
-        gainNode.gain = this.value;
+        gainNode.gain.value = value;
+        console.log(value);
         globalValueTree.volume = value;
     }
 }
