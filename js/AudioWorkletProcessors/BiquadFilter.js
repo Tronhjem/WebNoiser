@@ -1,4 +1,4 @@
-class MyFilter extends AudioWorkletProcessor 
+class MyBiquadFilter extends AudioWorkletProcessor 
 {
     constructor()
     {
@@ -55,19 +55,16 @@ class MyFilter extends AudioWorkletProcessor
     {
         this.Fc = parameters.freqency[0];
         this.setCoef();
+        const input = inputs[0];
+        const output = outputs[0];
 
-        for (let i = 0; i < outputs.length; i++)
-        {
-            let output = outputs[i];
-            let input = inputs[i];
-            for (let j = 0; j < output.length; j++)
-            {
-                let sampleOutArray = output[j];
-                let sampleInArray = input[j];
+        for (let channel = 0; channel < output.length; channel++) {
+            const inputChannel = input[channel];
+            const outputChannel = output[channel];
 
-                for (let sample = 0; sample < sampleOutArray.length; sample++)
-                {
-                    sampleOutArray[sample] = this.processSample(sampleInArray[sample]); 
+            if (inputChannel) {
+                for (let i = 0; i < inputChannel.length; i++) {
+                outputChannel[i] = this.processSample(inputChannel[i]);
                 }
             }
         }
@@ -109,4 +106,4 @@ class MyFilter extends AudioWorkletProcessor
     }
 }
 
-registerProcessor('MyFilter', MyFilter);
+registerProcessor('MyBiquadFilter', MyBiquadFilter);

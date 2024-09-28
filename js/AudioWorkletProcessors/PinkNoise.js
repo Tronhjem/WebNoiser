@@ -39,5 +39,4 @@ class PinkNoise extends AudioWorkletProcessor {
   }
 }
 
-// Register the processor so it can be used with an AudioWorkletNode
 registerProcessor('PinkNoise', PinkNoise);
