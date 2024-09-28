@@ -1,3 +1,5 @@
+import {FilterMinMax, dialMin, dialMax} from './Constants.js'
+
 class View {
     constructor() {
         this.volumeSlider = document.getElementById('volume-slider');
@@ -65,7 +67,7 @@ class View {
         }
     }
 
-    updateAllSliders(globalValueTree){
+    updateAllSliders(globalValueTree, addFilterCallback) {
         this.butterworthSlider.value = globalValueTree.biquadFilter.frequency;
         this.onePoleSlider.value = globalValueTree.onePoleLowpass.frequency;
         this.volumeSlider.value = globalValueTree.volume;
@@ -75,21 +77,32 @@ class View {
         this.volumeSlider.dispatchEvent(new Event('input'));
     }
 
-    createDial(min, max, value) {
+    createDial(min, max, initValue, isLog, changeCallback, filter) {
         const container = document.createElement('div');
         container.classList.add('dial-container');
 
         const dial = document.createElement('div');
         dial.classList.add('dial');
 
+        const indicator = document.createElement('div');
+        indicator.classList.add('dial-indicator');
+        dial.appendChild(indicator);
+
         let isDragging = false;
         let startY = 0;
-        const dialMin = 0;
-        const dialMax = 100;
+        
+        let value = 0;
+        if(isLog){
+            value = (dialMax * Math.log(initValue / min)) / Math.log(max / min);
+        }
+        else{
+            value = ( initValue - min) / (max - min) * dialMax;
+        }
 
         const updateDial = () => {
-            const dialValue = ((value - min) / (max - min)) * (dialMax - dialMin) + dialMin;
-            dial.style.transform = `rotate(${dialValue * 3.6}deg)`;
+            const angle = (value / dialMax ) * 270 - 135;
+            indicator.style.transform = `translate(-50%, -100%) rotate(${angle}deg)`;
+            changeCallback(value, filter)
         };
 
         dial.addEventListener('mousedown', (event) => {
@@ -117,13 +130,13 @@ class View {
         return container;
     }
 
-    createFilterControls(filter) {
+    createFilterControls(filter, changeFrequencyCallback, changeQCallback, changeGainCallback, OnRemoveFilter) {
         const container = document.createElement('div');
         container.classList.add('filter-controls');
 
-        const frequencyDial = this.createDial(20.0, 20000.0, filter.frequency.value);
-        const qDial = this.createDial(0.1, 10, filter.Q.value);
-        const gainDial = this.createDial(-25, 25, filter.gain.value);
+        const frequencyDial = this.createDial(FilterMinMax.frequency.min, FilterMinMax.frequency.max, filter.frequency.value, true, changeFrequencyCallback, filter);
+        const qDial = this.createDial(FilterMinMax.Q.min, FilterMinMax.Q.max, filter.Q.value, false, changeQCallback, filter);
+        const gainDial = this.createDial(FilterMinMax.gain.min, FilterMinMax.gain.max, filter.gain.value, false, changeGainCallback, filter);
 
         const typeSelector = document.createElement('select');
         ['lowpass', 'highpass', 'bandpass', 'lowshelf', 'highshelf', 'peaking', 'notch', 'allpass'].forEach(type => {
@@ -140,10 +153,18 @@ class View {
             filter.type = event.target.value;
         });
 
+        const removeButton = document.createElement('button');
+        removeButton.textContent = 'Remove';
+        removeButton.addEventListener('click', (event) => {
+            container.remove();
+            OnRemoveFilter(filter);
+        });
+
         container.appendChild(frequencyDial);
         container.appendChild(qDial);
         container.appendChild(gainDial);
         container.appendChild(typeSelector);
+        container.appendChild(removeButton);
 
         this.filterControlsContainer.appendChild(container);
         return container;

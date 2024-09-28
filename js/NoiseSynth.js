@@ -1,3 +1,5 @@
+import {FilterMinMax, dialMin, dialMax} from './Constants.js'
+
 class NoiseSynth{
     constructor(){
         this.audioContext = null;
@@ -35,6 +37,11 @@ class NoiseSynth{
         // this.analyser.connect(this.gainNode);
         this.gainNode.connect(this.audioContext.destination);
     }
+    
+    clear(){
+        this.disconnectAll();
+        this.filters = [];
+    }
 
     getLogFrequency(value) {
         const minFrequency = 20;
@@ -70,7 +77,18 @@ class NoiseSynth{
         return filter;
     }
 
-    updateFilter(filter, property, isLogarithmi){
+    removeFilter(filter){
+        const index = this.filters.indexOf(filter);
+        if (index > -1) {
+            this.filters.splice(index, 1);
+        }
+        this.updateAudioGraph();
+    }
+
+    updateFilter(value, filter, property, isLogarithmic){
+        let min = FilterMinMax[property].min;
+        let max = FilterMinMax[property].max;
+
         if (isLogarithmic) {
             const setValue = Math.pow(10, (value / dialMax) * (Math.log10(max) - Math.log10(min)) + Math.log10(min));
             filter[property].setValueAtTime(setValue, this.audioContext.currentTime);

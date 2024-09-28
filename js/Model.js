@@ -23,6 +23,9 @@ class Model {
         });
 
         localStorage.setItem('globalvalues', JSON.stringify(this.globalValueTree));
+        
+        console.log("Saved values: ");
+        console.log(this.globalValueTree);
     }
 
     loadValues() {
@@ -32,10 +35,6 @@ class Model {
         }
 
         this.filters = [];
-
-        // globalValueTree.filterSettings.forEach(filter => {
-        //     addFilterNoAudioUpdate(filter.type, filter.frequency, filter.Q, filter.gain);
-        // });
 
         console.log("Loaded values: ");
         console.log(this.globalValueTree);
@@ -48,6 +47,16 @@ class Model {
     addFilter(filter){
         this.filters.push(filter);
         console.log("Filter added");
+        console.log(this.filters);
+    }
+
+    removeFilter(filter){
+        const index = this.filters.indexOf(filter);
+        if (index > -1) {
+            this.filters.splice(index, 1);
+        }
+        console.log("Filter removed");
+        console.log(this.filters);
     }
 
     updateVolume(value) {
