@@ -29,40 +29,26 @@ class MyFilter extends AudioWorkletProcessor
     }
 
     static get parameterDescriptors() {
-    return [
-        {
-        name: "freqency",
-        defaultValue: 440.0,
-        minValue: 20.0,
-        maxValue: 20000.0
-        }
-    ];
+        return [
+            {
+            name: "freqency",
+            defaultValue: 440.0,
+            minValue: 20.0,
+            maxValue: 20000.0
+            }
+        ];
     }
 
     setCoef()
     {
-        // if(type == Type::ButterworthLPF)
-        // {
-            let theta = (this.MYPI * this.Fc) / this.Fs;
-            let C = 1.0 /  Math.tan(theta);
+        let theta = (this.MYPI * this.Fc) / this.Fs;
+        let C = 1.0 /  Math.tan(theta);
 
-            this.a0 = 1.0 / (1.0 + this.kSqrtTwo*C + C*C);
-            this.a1 = 2.0 * this.a0;
-            this.a2 = this.a0;
-            this.b1 = 2.0 * this.a0 * (1.0 - C*C);
-            this.b2 = this.a0 * (1.0 - this.kSqrtTwo * C + C * C);
-        // }
-        // else if(type == Type::ButterworthHPF)
-        // {
-        //     double theta = MYPI * Fc / Fs;
-        //     double C = tan(theta);
-
-        //     a0 = 1.0 / (1.0 + kSqrtTwo*C + C*C);
-        //     a1 = -2.0 * a0;
-        //     a2 = a0;
-        //     b1 = 2.0 * a0 * (C*C - 1.0);
-        //     b2 = a0 * (1.0 - kSqrtTwo*C + C*C);
-        // }
+        this.a0 = 1.0 / (1.0 + this.kSqrtTwo*C + C*C);
+        this.a1 = 2.0 * this.a0;
+        this.a2 = this.a0;
+        this.b1 = 2.0 * this.a0 * (1.0 - C*C);
+        this.b2 = this.a0 * (1.0 - this.kSqrtTwo * C + C * C);
     }
 
     process(inputs, outputs, parameters) 
