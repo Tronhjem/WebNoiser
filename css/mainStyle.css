@@ -121,12 +121,12 @@ canvas {
 
 .dial-indicator-tip{
     width: 8px;
-    height: 8px;
+    height: 16px;
     background-color: var(--redColor);
     position: relative;
-    border-radius: 50%;
+    border-radius: 17%;
     left: -4px;
-    top: 2px;
+    /* top: 1px; */
 }
 
 .dial-function-text {
