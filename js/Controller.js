@@ -17,8 +17,8 @@ class Controller {
 
         this.view.bindClearLocalStorageButton(this.handleClearLocalStorageButton.bind(this));
 
-        this.view.createVolumeControl(this.handleVolumeChange.bind(this));
-        this.view.createOnePoleControl(this.handleOnePoleChange.bind(this));
+        this.view.createVolumeControl(this.handleVolumeChange.bind(this), this.model.globalValueTree.volume);
+        this.view.createOnePoleControl(this.handleOnePoleChange.bind(this), this.model.globalValueTree.onePoleLowpass.frequency);
     }
 
     async startAudio(){

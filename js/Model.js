@@ -2,9 +2,9 @@
 class Model {
     constructor() {
         this.globalValueTree = {
-            biquadFilter: { frequency: 5000 },
-            onePoleLowpass: { frequency: 1500 },
-            volume: 0.5,
+            biquadFilter: { frequency: 8000.0 },
+            onePoleLowpass: { frequency: 500.0 },
+            volume: 0.2,
             filterSettings: []
         };
         this.filters = [];

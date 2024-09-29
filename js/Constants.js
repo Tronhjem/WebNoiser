@@ -9,7 +9,7 @@ export const FilterMinMax =
     },
     Q:
     {
-        min: 0.5,
+        min: 0.1,
         max: 10
     },
     gain:

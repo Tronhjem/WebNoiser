@@ -43,7 +43,7 @@ class View {
 
     clearFilterControls() {
         while (this.filterControlsContainer.firstChild) {
-            this.filterControlsContainer.removeChild(filterControlsContainer.firstChild);
+            this.filterControlsContainer.removeChild(this.filterControlsContainer.firstChild);
         }
 
         while(this.coreControls.firstChild){
@@ -87,6 +87,10 @@ class View {
         indicator.classList.add("dial-indicator");
         dial.appendChild(indicator);
 
+        const circle = document.createElement("div");
+        circle.classList.add("dial-indicator-tip");
+        indicator.appendChild(circle);
+
         const textElement = document.createElement("div");
         textElement.classList.add("dial-value-text");
         textElement.textContent = initValue;
@@ -111,7 +115,9 @@ class View {
         const updateDial = () => {
             const angle = (value / dialMax ) * 270 - 135;
             indicator.style.transform = `translate(-50%, -100%) rotate(${angle}deg)`;
+            
             let textValue = 0;
+
             if(isLog){
                 textValue = Math.floor(Math.pow(10, (value / dialMax) * (Math.log10(max) - Math.log10(min)) + Math.log10(min)));
             } 

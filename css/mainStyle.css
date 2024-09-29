@@ -53,6 +53,22 @@ canvas {
     border: 1px solid white;
 }
 
+#button-controls{
+    display: flex;
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically if needed */
+    height: 100%;
+    margin-top: 1rem;
+}
+
+#core-controls{
+    display: flex;
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically if needed */
+    height: 100%;
+    margin-top: 1rem;
+}
+
 .filter-controls{
     display: flex;
     justify-content: center; /* Center horizontally */
@@ -89,17 +105,28 @@ canvas {
     background: var(--midColor);
     position: relative;
     cursor: pointer;
+    /* border: 1px solid var(--contrastColor); */
 }
 
 .dial-indicator {
-    width: 8px;
+    width: 2px;
     height: 50%;
-    background: var(--redColor);
+    background: var(--midColor);
     position: absolute;
     top: 50%;
     left: 50%;
     transform-origin: bottom center;
-    transform: translate(-50%, -100%) rotate(0deg);
+    /* border-radius: 20%; */
+}
+
+.dial-indicator-tip{
+    width: 8px;
+    height: 8px;
+    background-color: var(--redColor);
+    position: relative;
+    border-radius: 50%;
+    left: -4px;
+    top: 2px;
 }
 
 .dial-function-text {
