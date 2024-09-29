@@ -1,4 +1,4 @@
-import {FilterMinMax, dialMin, dialMax} from './Constants.js'
+import {FilterMinMax, dialMin, dialMax} from "./Constants.js"
 
 class NoiseSynth{
     constructor(){
@@ -18,21 +18,21 @@ class NoiseSynth{
         this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
         this.gainNode = this.audioContext.createGain();
 
-        await this.audioContext.audioWorklet.addModule('js/AudioWorkletProcessors/PinkNoise.js');
-        this.pinkNoise = new AudioWorkletNode(this.audioContext, 'PinkNoise');
+        await this.audioContext.audioWorklet.addModule("js/AudioWorkletProcessors/PinkNoise.js");
+        this.pinkNoise = new AudioWorkletNode(this.audioContext, "PinkNoise");
 
-        await this.audioContext.audioWorklet.addModule('js/AudioWorkletProcessors/BiquadFilter.js');
-        this.biquadFilter = new AudioWorkletNode(this.audioContext, 'MyBiquadFilter');
+        await this.audioContext.audioWorklet.addModule("js/AudioWorkletProcessors/BiquadFilter.js");
+        this.biquadFilter = new AudioWorkletNode(this.audioContext, "MyBiquadFilter");
         
-        await this.audioContext.audioWorklet.addModule('js/AudioWorkletProcessors/OnePoleLowpass.js');
-        this.onePoleLowpass = new AudioWorkletNode(this.audioContext, 'OnePoleLowpass');
+        await this.audioContext.audioWorklet.addModule("js/AudioWorkletProcessors/OnePoleLowpass.js");
+        this.onePoleLowpass = new AudioWorkletNode(this.audioContext, "OnePoleLowpass");
 
         // this.analyser.fftSize = 2048;
         // this.bufferLength = analyser.frequencyBinCount;
         // this.dataArray = new Uint8Array(bufferLength);
 
-        this.pinkNoise.connect(this.biquadFilter);
-        this.biquadFilter.connect(this.onePoleLowpass);
+        this.pinkNoise.connect(this.onePoleLowpass);
+        this.biquadFilter.connect(this.biquadFilter);
         this.onePoleLowpass.connect(this.gainNode);
         // this.analyser.connect(this.gainNode);
         this.gainNode.connect(this.audioContext.destination);
@@ -51,16 +51,16 @@ class NoiseSynth{
 
     setVolume(value){
         this.gainNode.gain.value = value;
+        console.log(`Setting volume to: ${value}`);
     }
 
     setOnePoleFrequency(value){
-        const frequency = this.getLogFrequency(value);
-        this.onePoleLowpass.parameters.get("freqency").setValueAtTime(frequency, this.audioContext.currentTime)
+        this.onePoleLowpass.parameters.get("freqency").setValueAtTime(value, this.audioContext.currentTime)
+        console.log(`Setting onepole to: ${value}`);
     }
 
     setBiqadFilterFrequency(value){
-        const frequency = this.getLogFrequency(value);
-        this.biquadFilter.parameters.get("freqency").setValueAtTime(frequency, this.audioContext.currentTime)
+        this.biquadFilter.parameters.get("freqency").setValueAtTime(value, this.audioContext.currentTime)
     }
     
     addFilter(filterType="lowpass", frequency=18000.0, Q=0.5, gain=0.0)
@@ -135,7 +135,7 @@ class NoiseSynth{
 
         analyser.getByteFrequencyData(dataArray);
 
-        canvasCtx.fillStyle = 'black';
+        canvasCtx.fillStyle = "black";
         canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
 
         const barWidth = (canvas.width / bufferLength) * 2.5;
@@ -145,7 +145,7 @@ class NoiseSynth{
         for (let i = 0; i < bufferLength; i++) {
             barHeight = dataArray[i];
 
-            canvasCtx.fillStyle = 'rgb(' + (barHeight + 100) + ',50,50)';
+            canvasCtx.fillStyle = "rgb(" + (barHeight + 100) + ",50,50)";
             canvasCtx.fillRect(x, canvas.height - barHeight / 2, barWidth, barHeight / 2);
 
             x += barWidth + 1;

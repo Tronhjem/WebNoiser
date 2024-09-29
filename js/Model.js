@@ -2,8 +2,8 @@
 class Model {
     constructor() {
         this.globalValueTree = {
-            biquadFilter: { frequency: 1 },
-            onePoleLowpass: { frequency: 1 },
+            biquadFilter: { frequency: 5000 },
+            onePoleLowpass: { frequency: 1500 },
             volume: 0.5,
             filterSettings: []
         };
@@ -22,14 +22,14 @@ class Model {
             };
         });
 
-        localStorage.setItem('globalvalues', JSON.stringify(this.globalValueTree));
+        localStorage.setItem("globalvalues", JSON.stringify(this.globalValueTree));
         
         console.log("Saved values: ");
         console.log(this.globalValueTree);
     }
 
     loadValues() {
-        this.globalValueTree = JSON.parse(localStorage.getItem('globalvalues'));
+        this.globalValueTree = JSON.parse(localStorage.getItem("globalvalues"));
         if(!this.globalValueTree){
             return;
         }

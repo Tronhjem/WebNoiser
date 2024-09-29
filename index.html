@@ -11,37 +11,17 @@
 </head>
 <body>
     <div class="container">
-        <div class="btn-group" role="group" aria-label="Buttons">
-            <button class="btn btn-primary" id="play-button">Start Audio</button>
-            <button class="btn btn-primary" id="save-button">Save</button>
-            <button class="btn btn-primary" id="load-button">Load</button>
-            <button class="btn btn-primary" id="clear-local-storage">Clear Saved Preset</button>
+        <div class="">
+            <button class="my-button" id="play-button">Start Audio</button>
+            <button class="my-button" id="save-button">Save</button>
+            <button class="my-button" id="load-button">Load</button>
+            <button class="my-button" id="clear-local-storage">Clear Saved Preset</button>
         </div>
         
-        <div class="row mt-5">
-            <div class="col-md-3">
-                <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.5" />
-            </div>
-            <div class="col-md-3">
-                <input type="range" id="filter-slider-butterworth" min="0" max="1" step="0.01" value="0.5" />
-            </div>
-            <div class="col-md-3">
-                <input type="range" id="filter-slider-onepole" min="0" max="1" step="0.01" value="0.5" />
-            </div>
+        <div class="row m-5" id="core-controls">
         </div>
 
-        <div class="row">
-            <div class="col-md-3">
-                <label for="volume-slider">Volume</label><br><br>
-            </div>
-            <div class="col-md-3">
-                <label for="filter-slider">ButterWorth Low Pass Filter</label>
-            </div>
-            <div class="col-md-3">
-                <label for="filter-slider">One Pole Low Pass Filter</label>
-            </div>
-        </div>
-        <button id="add-filter-button">Add Filter</button>
+        <button class="my-button" id="add-filter-button">Add Filter</button>
         <div id="filter-controls-container"></div>
 
         <!-- <canvas id="frequency-canvas" width="800" height="400"></canvas> -->

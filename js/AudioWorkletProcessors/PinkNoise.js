@@ -16,7 +16,7 @@ class PinkNoise extends AudioWorkletProcessor {
     const output = outputs[0];
     const channel = output[0];
 
-    // Pink noise generation using Paul Kellet's algorithm
+    // Pink noise generation using Paul Kellet"s algorithm
     for (let i = 0; i < channel.length; i++) {
       const white = Math.random() * 2 - 1; // White noise between -1 and 1
 
@@ -39,4 +39,4 @@ class PinkNoise extends AudioWorkletProcessor {
   }
 }
 
-registerProcessor('PinkNoise', PinkNoise);
+registerProcessor("PinkNoise", PinkNoise);

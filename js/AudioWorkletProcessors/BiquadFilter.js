@@ -106,4 +106,4 @@ class MyBiquadFilter extends AudioWorkletProcessor
     }
 }
 
-registerProcessor('MyBiquadFilter', MyBiquadFilter);
+registerProcessor("MyBiquadFilter", MyBiquadFilter);

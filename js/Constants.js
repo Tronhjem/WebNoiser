@@ -9,16 +9,17 @@ export const FilterMinMax =
     },
     Q:
     {
-        min: 0,
+        min: 0.5,
         max: 10
     },
     gain:
     {
         min: -25,
-        max: 25
+        max: 25,
+        mid: 0
     },
 }
 export const volumeMin = 0;
 export const volumeMax = 1;
-export const filterTypes = ['lowpass', 'highpass', 'bandpass', 'notch', 'allpass', 'peaking', 'lowshelf', 'highshelf'];
+export const constantFilterTypes = ["lowpass", "highpass", "bandpass", "notch", "allpass", "peaking", "lowshelf", "highshelf"];
 

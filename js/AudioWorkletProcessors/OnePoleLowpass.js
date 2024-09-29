@@ -2,11 +2,11 @@ class OnePoleLowpass extends AudioWorkletProcessor {
   static get parameterDescriptors() {
     return [
       {
-        name: 'freqency',
+        name: "freqency",
         defaultValue: 1000,
         minValue: 20.0,
         maxValue: 20000.0,
-        automationRate: 'a-rate'
+        automationRate: "a-rate"
       }
     ];
   }
@@ -52,4 +52,4 @@ class OnePoleLowpass extends AudioWorkletProcessor {
   }
 }
 
-registerProcessor('OnePoleLowpass', OnePoleLowpass);
+registerProcessor("OnePoleLowpass", OnePoleLowpass);

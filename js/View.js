@@ -1,62 +1,42 @@
-import {FilterMinMax, dialMin, dialMax} from './Constants.js'
+import {constantFilterTypes, FilterMinMax, dialMin, dialMax} from "./Constants.js"
 
 class View {
     constructor() {
-        this.volumeSlider = document.getElementById('volume-slider');
-        this.butterworthSlider = document.getElementById('filter-slider-butterworth');
-        this.onePoleSlider = document.getElementById('filter-slider-onepole');
-        this.playButton = document.getElementById('play-button');
-        this.addFilterButton = document.getElementById('add-filter-button');
-        this.saveButton = document.getElementById('save-button');
-        this.loadButton = document.getElementById('load-button');
-        this.clearLocalStorageButton = document.getElementById('clear-local-storage');
-        this.filterControlsContainer = document.getElementById('filter-controls-container');
+        this.playButton = document.getElementById("play-button");
+        this.addFilterButton = document.getElementById("add-filter-button");
+        this.saveButton = document.getElementById("save-button");
+        this.loadButton = document.getElementById("load-button");
+        this.clearLocalStorageButton = document.getElementById("clear-local-storage");
+        this.filterControlsContainer = document.getElementById("filter-controls-container");
+        this.coreControls = document.getElementById("core-controls");
     }
 
     bindPlayButton(handler) {
-        this.playButton.addEventListener('click', async event => {
+        this.playButton.addEventListener("click", async event => {
             await handler(event.target.value);
         });
     }
 
     bindAddFilterButton(handler) {
-        this.addFilterButton.addEventListener('click', event => {
+        this.addFilterButton.addEventListener("click", event => {
             handler(event.target.value);
         });
     }
 
     bindSaveButton(handler) {
-        this.saveButton.addEventListener('click', event => {
+        this.saveButton.addEventListener("click", event => {
             handler(event.target.value);
         });
     }
 
     bindLoadButton(handler) {
-        this.loadButton.addEventListener('click', event => {
+        this.loadButton.addEventListener("click", event => {
             handler(event.target.value);
         });
     }
 
     bindClearLocalStorageButton(handler) {
-        this.clearLocalStorageButton.addEventListener('click', event => {
-            handler(event.target.value);
-        });
-    }
-
-    bindVolumeSliderChange(handler) {
-        this.volumeSlider.addEventListener('input', event => {
-            handler(event.target.value);
-        });
-    }
-
-    bindButterworthSliderChange(handler) {
-        this.butterworthSlider.addEventListener('input', event => {
-            handler(event.target.value);
-        });
-    }
-
-    bindOnePoleSliderChange(handler) {
-        this.onePoleSlider.addEventListener('input', event => {
+        this.clearLocalStorageButton.addEventListener("click", event => {
             handler(event.target.value);
         });
     }
@@ -65,28 +45,57 @@ class View {
         while (this.filterControlsContainer.firstChild) {
             this.filterControlsContainer.removeChild(filterControlsContainer.firstChild);
         }
+
+        while(this.coreControls.firstChild){
+            this.coreControls.removeChild(this.coreControls.firstChild);
+        }
     }
 
-    updateAllSliders(globalValueTree, addFilterCallback) {
-        this.butterworthSlider.value = globalValueTree.biquadFilter.frequency;
-        this.onePoleSlider.value = globalValueTree.onePoleLowpass.frequency;
-        this.volumeSlider.value = globalValueTree.volume;
+    createVolumeControl(volumeChangedCallback, initValue = 0.5){
+        const container = document.createElement("div");
+        container.classList.add("volume-control");
 
-        this.butterworthSlider.dispatchEvent(new Event('input'));
-        this.onePoleSlider.dispatchEvent(new Event('input'));
-        this.volumeSlider.dispatchEvent(new Event('input'));
+        const volumeDial = this.createDial(0, 1, initValue, false, volumeChangedCallback, null, 2, "Volume", "");
+
+        container.appendChild(volumeDial);
+        this.coreControls.appendChild(container);
     }
 
-    createDial(min, max, initValue, isLog, changeCallback, filter) {
-        const container = document.createElement('div');
-        container.classList.add('dial-container');
+    createOnePoleControl(onePoleChangedCallback, initValue = 1500){
+        const container = document.createElement("div");
+        container.classList.add("onepole-control");
 
-        const dial = document.createElement('div');
-        dial.classList.add('dial');
+        const volumeDial = this.createDial(FilterMinMax.frequency.min, FilterMinMax.frequency.max, initValue, true, onePoleChangedCallback, null, 2, "Freq", "Hz");
 
-        const indicator = document.createElement('div');
-        indicator.classList.add('dial-indicator');
+        container.appendChild(volumeDial);
+        this.coreControls.appendChild(container);
+    }
+
+    roundDown(value, decimals) {
+        const factor = Math.pow(10, decimals);
+        return Math.floor(value * factor) / factor;
+    }
+
+    createDial(min, max, initValue, isLog, changeCallback, filter, decimals = 2, name, suffix) {
+        const container = document.createElement("div");
+        container.classList.add("dial-container");
+
+        const dial = document.createElement("div");
+        dial.classList.add("dial");
+
+        const indicator = document.createElement("div");
+        indicator.classList.add("dial-indicator");
         dial.appendChild(indicator);
+
+        const textElement = document.createElement("div");
+        textElement.classList.add("dial-value-text");
+        textElement.textContent = initValue;
+        container.appendChild(textElement);
+
+        const functionText = document.createElement("div");
+        functionText.classList.add("dial-function-text");
+        functionText.textContent = name;
+        container.appendChild(functionText);
 
         let isDragging = false;
         let startY = 0;
@@ -102,16 +111,24 @@ class View {
         const updateDial = () => {
             const angle = (value / dialMax ) * 270 - 135;
             indicator.style.transform = `translate(-50%, -100%) rotate(${angle}deg)`;
+            let textValue = 0;
+            if(isLog){
+                textValue = Math.floor(Math.pow(10, (value / dialMax) * (Math.log10(max) - Math.log10(min)) + Math.log10(min)));
+            } 
+            else {
+                textValue = this.roundDown((value / dialMax) * (max - min) + min, decimals);
+            }
+            textElement.textContent = `${textValue} ${suffix}`;
             changeCallback(value, filter)
         };
 
-        dial.addEventListener('mousedown', (event) => {
+        dial.addEventListener("mousedown", (event) => {
             isDragging = true;
             startY = event.clientY;
             event.preventDefault();
         });
 
-        document.addEventListener('mousemove', (event) => {
+        document.addEventListener("mousemove", (event) => {
             if (isDragging) {
                 const deltaY = startY - event.clientY;
                 value += deltaY * 1;
@@ -121,7 +138,7 @@ class View {
             }
         });
 
-        document.addEventListener('mouseup', () => {
+        document.addEventListener("mouseup", () => {
             isDragging = false;
         });
 
@@ -131,16 +148,18 @@ class View {
     }
 
     createFilterControls(filter, changeFrequencyCallback, changeQCallback, changeGainCallback, OnRemoveFilter) {
-        const container = document.createElement('div');
-        container.classList.add('filter-controls');
+        const container = document.createElement("div");
+        container.classList.add("filter-controls");
+        container.classList.add("row");
 
-        const frequencyDial = this.createDial(FilterMinMax.frequency.min, FilterMinMax.frequency.max, filter.frequency.value, true, changeFrequencyCallback, filter);
-        const qDial = this.createDial(FilterMinMax.Q.min, FilterMinMax.Q.max, filter.Q.value, false, changeQCallback, filter);
-        const gainDial = this.createDial(FilterMinMax.gain.min, FilterMinMax.gain.max, filter.gain.value, false, changeGainCallback, filter);
+        const frequencyDial = this.createDial(FilterMinMax.frequency.min, FilterMinMax.frequency.max, filter.frequency.value, true, changeFrequencyCallback, filter, 0, "Freq", "Hz");
+        const qDial = this.createDial(FilterMinMax.Q.min, FilterMinMax.Q.max, filter.Q.value, false, changeQCallback, filter, 2, "Q", "");
+        const gainDial = this.createDial(FilterMinMax.gain.min, FilterMinMax.gain.max, filter.gain.value, false, changeGainCallback, filter, 0, "Gain", "dB");
 
-        const typeSelector = document.createElement('select');
-        ['lowpass', 'highpass', 'bandpass', 'lowshelf', 'highshelf', 'peaking', 'notch', 'allpass'].forEach(type => {
-            const option = document.createElement('option');
+        const typeSelector = document.createElement("select");
+        typeSelector.classList.add("filter-type-selector");
+        constantFilterTypes.forEach(type => {
+            const option = document.createElement("option");
             option.value = type;
             option.textContent = type;
             if (filter.type === type) {
@@ -149,13 +168,15 @@ class View {
             typeSelector.appendChild(option);
         });
 
-        typeSelector.addEventListener('change', (event) => {
+        typeSelector.addEventListener("change", (event) => {
             filter.type = event.target.value;
         });
 
-        const removeButton = document.createElement('button');
-        removeButton.textContent = 'Remove';
-        removeButton.addEventListener('click', (event) => {
+        const removeButton = document.createElement("button");
+        removeButton.classList.add("filter-button");
+        removeButton.classList.add("my-button");
+        removeButton.textContent = "Remove";
+        removeButton.addEventListener("click", (event) => {
             container.remove();
             OnRemoveFilter(filter);
         });
