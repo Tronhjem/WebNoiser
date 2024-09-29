@@ -28,15 +28,13 @@ class NoiseSynth{
         await this.audioContext.audioWorklet.addModule("js/AudioWorkletProcessors/BiquadFilter.js");
         this.biquadHighPassFilter = new AudioWorkletNode(this.audioContext, "MyBiquadFilter");
 
-        // this.biquadFilter.parameters.get("filterType").setValueAtTime(MyBiquadFilterTypes.HIGHPASS, this.audioContext.currentTime)
-        
         await this.audioContext.audioWorklet.addModule("js/AudioWorkletProcessors/OnePoleLowpass.js");
         this.onePoleLowpass = new AudioWorkletNode(this.audioContext, "OnePoleLowpass");
 
         // this.analyser.fftSize = 2048;
         // this.bufferLength = analyser.frequencyBinCount;
         // this.dataArray = new Uint8Array(bufferLength);
-        
+
         this.biquadHighPassFilter.parameters.get("filterType").setValueAtTime(MyBiquadFilterTypes.HIGHPASS, this.audioContext.currentTime);
 
         this.connectAll();
