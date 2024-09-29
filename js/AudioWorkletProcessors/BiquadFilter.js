@@ -24,36 +24,59 @@ class MyBiquadFilter extends AudioWorkletProcessor
         this.kSmallestNegativeFloatValue = -1.175494351e-38;   
         this.MYPI  = 3.1415926535897932384626433832795028841971693993751058209749445923078164062;
         this.kSqrtTwo = Math.pow(2.0, 0.5);
-
+        this.filterType = 0;
         this.setCoef();
     }
 
     static get parameterDescriptors() {
         return [
             {
-            name: "freqency",
-            defaultValue: 440.0,
-            minValue: 20.0,
-            maxValue: 20000.0
+                name: "freqency",
+                defaultValue: 440.0,
+                minValue: 20.0,
+                maxValue: 20000.0
+            },
+            {
+                name: "filterType",
+                defaultValue: 0,
+                minValue: 0,
+                maxValue: 1
             }
         ];
     }
 
     setCoef()
     {
-        let theta = (this.MYPI * this.Fc) / this.Fs;
-        let C = 1.0 /  Math.tan(theta);
+        // lowpass
+        if(this.filterType == 0)
+        {
+            let theta = (this.MYPI * this.Fc) / this.Fs;
+            let C = 1.0 /  Math.tan(theta);
 
-        this.a0 = 1.0 / (1.0 + this.kSqrtTwo*C + C*C);
-        this.a1 = 2.0 * this.a0;
-        this.a2 = this.a0;
-        this.b1 = 2.0 * this.a0 * (1.0 - C*C);
-        this.b2 = this.a0 * (1.0 - this.kSqrtTwo * C + C * C);
+            this.a0 = 1.0 / (1.0 + this.kSqrtTwo*C + C*C);
+            this.a1 = 2.0 * this.a0;
+            this.a2 = this.a0;
+            this.b1 = 2.0 * this.a0 * (1.0 - C*C);
+            this.b2 = this.a0 * (1.0 - this.kSqrtTwo * C + C * C);
+        }
+        // highpass
+        else if(this.filterType == 1)
+        {
+            let theta_c = this.MYPI * this.Fc / this.Fs;
+		    let C = Math.tan(theta_c);
+
+		    this.a0 = 1.0 / (1.0 + this.kSqrtTwo * C + C * C);
+		    this.a1 = -2.0 * this.a0;
+		    this.a2 =  this.a0;
+		    this.b1 = 2.0 * this.a0 * ( C * C - 1.0);
+		    this.b2 =  this.a0 * (1.0 - this.kSqrtTwo * C + C * C);
+        }
     }
 
     process(inputs, outputs, parameters) 
     {
         this.Fc = parameters.freqency[0];
+        this.filterType = parameters.filterType[0];
         this.setCoef();
         const input = inputs[0];
         const output = outputs[0];

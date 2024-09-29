@@ -2,7 +2,8 @@
 class Model {
     constructor() {
         this.globalValueTree = {
-            biquadFilter: { frequency: 8000.0 },
+            biquadLowPass: { frequency: 14000.0 },
+            biquadHighPass: { frequency: 40.0 },
             onePoleLowpass: { frequency: 500.0 },
             volume: 0.2,
             filterSettings: []
@@ -65,7 +66,7 @@ class Model {
     }
 
     updateButterworthFrequency(value) {
-        this.globalValueTree.biquadFilter.frequency = value;
+        this.globalValueTree.biquadLowPass.frequency = value;
         console.log(`Butterworth frequency updated to: ${value}`);
     }
 

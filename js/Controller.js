@@ -26,11 +26,11 @@ class Controller {
         {
             await this.noiseSynth.initialize();
             this.audioIsInit = true;
-            this.noiseSynth.setBiqadFilterFrequency(this.model.globalValueTree.biquadFilter.frequency);
-            this.noiseSynth.setOnePoleFrequency(this.model.globalValueTree.onePoleLowpass.frequency);
             this.noiseSynth.setVolume(this.model.globalValueTree.volume);
+            this.noiseSynth.setBiqadLowpassFilterFrequency(this.model.globalValueTree.biquadLowPass.frequency);
+            this.noiseSynth.setBiqadHighpassFilterFrequency(this.model.globalValueTree.biquadHighPass.frequency);
+            this.noiseSynth.setOnePoleFrequency(this.model.globalValueTree.onePoleLowpass.frequency);
         }
-        this.noiseSynth.audioContext.resume();
     }
 
     handleVolumeChange(value) {
@@ -44,7 +44,7 @@ class Controller {
     handleButterworthChange(value) {
             this.model.updateButterworthFrequency(value);
         if(this.audioIsInit){
-            this.noiseSynth.setBiqadFilterFrequency(value);
+            this.noiseSynth.setBiqadLowpassFilterFrequency(value);
         }
     }
 

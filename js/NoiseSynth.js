@@ -1,11 +1,12 @@
-import {FilterMinMax, dialMin, dialMax} from "./Constants.js"
+import {FilterMinMax, dialMin, dialMax, MyBiquadFilterTypes} from "./Constants.js"
 
 class NoiseSynth{
     constructor(){
         this.audioContext = null;
         this.gainNode = null;
         this.pinkNoise = null;
-        this.biquadFilter = null;
+        this.biquadLowPassFilter = null;
+        this.biquadHighPassFilter = null;
         this.onePoleLowpass = null;
         this.analyser = null;
         this.gainNode = null;
@@ -22,7 +23,12 @@ class NoiseSynth{
         this.pinkNoise = new AudioWorkletNode(this.audioContext, "PinkNoise");
 
         await this.audioContext.audioWorklet.addModule("js/AudioWorkletProcessors/BiquadFilter.js");
-        this.biquadFilter = new AudioWorkletNode(this.audioContext, "MyBiquadFilter");
+        this.biquadLowPassFilter = new AudioWorkletNode(this.audioContext, "MyBiquadFilter");
+
+        await this.audioContext.audioWorklet.addModule("js/AudioWorkletProcessors/BiquadFilter.js");
+        this.biquadHighPassFilter = new AudioWorkletNode(this.audioContext, "MyBiquadFilter");
+
+        // this.biquadFilter.parameters.get("filterType").setValueAtTime(MyBiquadFilterTypes.HIGHPASS, this.audioContext.currentTime)
         
         await this.audioContext.audioWorklet.addModule("js/AudioWorkletProcessors/OnePoleLowpass.js");
         this.onePoleLowpass = new AudioWorkletNode(this.audioContext, "OnePoleLowpass");
@@ -30,12 +36,10 @@ class NoiseSynth{
         // this.analyser.fftSize = 2048;
         // this.bufferLength = analyser.frequencyBinCount;
         // this.dataArray = new Uint8Array(bufferLength);
+        
+        this.biquadHighPassFilter.parameters.get("filterType").setValueAtTime(MyBiquadFilterTypes.HIGHPASS, this.audioContext.currentTime);
 
-        this.pinkNoise.connect(this.onePoleLowpass);
-        this.biquadFilter.connect(this.biquadFilter);
-        this.onePoleLowpass.connect(this.gainNode);
-        // this.analyser.connect(this.gainNode);
-        this.gainNode.connect(this.audioContext.destination);
+        this.connectAll();
     }
     
     clear(){
@@ -55,12 +59,18 @@ class NoiseSynth{
     }
 
     setOnePoleFrequency(value){
-        this.onePoleLowpass.parameters.get("freqency").setValueAtTime(value, this.audioContext.currentTime)
+        this.onePoleLowpass.parameters.get("freqency").setValueAtTime(value, this.audioContext.currentTime);
         console.log(`Setting onepole to: ${value}`);
     }
 
-    setBiqadFilterFrequency(value){
-        this.biquadFilter.parameters.get("freqency").setValueAtTime(value, this.audioContext.currentTime)
+    setBiqadLowpassFilterFrequency(value){
+        this.biquadLowPassFilter.parameters.get("freqency").setValueAtTime(value, this.audioContext.currentTime);
+        console.log(`Setting lowpass to: ${value}`);
+    }
+
+    setBiqadHighpassFilterFrequency(value){
+        this.biquadHighPassFilter.parameters.get("freqency").setValueAtTime(value, this.audioContext.currentTime);
+        console.log(`Setting highpass to: ${value}`);
     }
     
     addFilter(filterType="lowpass", frequency=18000.0, Q=0.5, gain=0.0)
@@ -105,16 +115,18 @@ class NoiseSynth{
             previousNode = filter;
         });
 
-        previousNode.connect(this.biquadFilter);
-        this.biquadFilter.connect(this.onePoleLowpass);
-        this.onePoleLowpass.connect(this.gainNode);
+        previousNode.connect(this.onePoleLowpass);
+        this.onePoleLowpass.connect(this.biquadHighPassFilter);
+        this.biquadHighPassFilter.connect(this.biquadLowPassFilter);
+        this.biquadLowPassFilter.connect(this.gainNode);
         this.gainNode.connect(this.audioContext.destination);
     }
 
     disconnectAll() {
         this.pinkNoise.disconnect();
         this.onePoleLowpass.disconnect();
-        this.biquadFilter.disconnect();
+        this.biquadLowPassFilter.disconnect();
+        this.biquadHighPassFilter.disconnect();
         this.gainNode.disconnect();
 
         this.filters.forEach(filter => {

@@ -22,4 +22,7 @@ export const FilterMinMax =
 export const volumeMin = 0;
 export const volumeMax = 1;
 export const constantFilterTypes = ["lowpass", "highpass", "bandpass", "notch", "allpass", "peaking", "lowshelf", "highshelf"];
-
+export const MyBiquadFilterTypes = {
+    LOWPASS: 0,
+    HIGHPASS: 1,
+}
