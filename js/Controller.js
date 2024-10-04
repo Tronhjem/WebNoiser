@@ -78,13 +78,14 @@ class Controller {
         filter.Q.value = Q;
         filter.gain.value = gain;
 
-        this.model.addFilter(filter);
+        const filterData = this.model.addFilter(filter);
 
         this.view.createFilterControls(filter, 
             this.handleFilterFrequencyDialChange.bind(this), 
             this.handleFilterQDialChange.bind(this), 
             this.handleFilterGainDialChange.bind(this),
-            this.handleRemoveFilter.bind(this)
+            this.handleRemoveFilter.bind(this),
+            filterData
         );
     }
 
@@ -112,9 +113,11 @@ class Controller {
         this.model.clearLocalStorage();
     }
      
-    handleRemoveFilter(filter) {
+    handleRemoveFilter(filter, filterData) {
         this.noiseSynth.removeFilter(filter);
         this.model.removeFilter(filter);
+        delete this.model.filterData[filterData.id]
+        console.log(this.model.filterData);
     }
 
     saveAllValues() {

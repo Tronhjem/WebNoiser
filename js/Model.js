@@ -9,6 +9,7 @@ class Model {
             filterSettings: []
         };
         this.filters = [];
+        this.filterData = {};
     }
 
     saveValues() {
@@ -46,9 +47,14 @@ class Model {
     }
 
     addFilter(filter){
+        const filterDataEntry = {id: Date.now(), frequency: 15000, Q: 0.1, gain: 0};
+        this.filterData[filterDataEntry.id] = filterDataEntry;
+        console.log(this.filterData)
+
         this.filters.push(filter);
-        console.log("Filter added");
-        console.log(this.filters);
+        // console.log("Filter added");
+        // console.log(this.filters);
+        return filterDataEntry;
     }
 
     removeFilter(filter){

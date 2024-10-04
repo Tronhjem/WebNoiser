@@ -153,7 +153,7 @@ class View {
         return container;
     }
 
-    createFilterControls(filter, changeFrequencyCallback, changeQCallback, changeGainCallback, OnRemoveFilter) {
+    createFilterControls(filter, changeFrequencyCallback, changeQCallback, changeGainCallback, OnRemoveFilter, filterData) {
         const container = document.createElement("div");
         container.classList.add("filter-controls");
         container.classList.add("row");
@@ -184,7 +184,7 @@ class View {
         removeButton.textContent = "Remove";
         removeButton.addEventListener("click", (event) => {
             container.remove();
-            OnRemoveFilter(filter);
+            OnRemoveFilter(filter, filterData);
         });
 
         container.appendChild(frequencyDial);
