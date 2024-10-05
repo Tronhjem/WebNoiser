@@ -1,0 +1,14 @@
+{
+  "name": "webnoiser",
+  "version": "1.0.0",
+  "description": "A web based noise generator with custom controls",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "webpack": "^5.95.0"
+  }
+}
