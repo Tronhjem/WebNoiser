@@ -1,6 +1,6 @@
-
 const canvas = document.getElementById("frequency-canvas");
 const canvasCtx = canvas ? canvas.getContext("2d") : null;
+
 
 function onPageLoad() {
 

@@ -19,16 +19,16 @@ class NoiseSynth{
         this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
         this.gainNode = this.audioContext.createGain();
 
-        await this.audioContext.audioWorklet.addModule("js/AudioWorkletProcessors/PinkNoise.js");
+        await this.audioContext.audioWorklet.addModule("src/AudioWorkletProcessors/PinkNoise.js");
         this.pinkNoise = new AudioWorkletNode(this.audioContext, "PinkNoise");
 
-        await this.audioContext.audioWorklet.addModule("js/AudioWorkletProcessors/BiquadFilter.js");
+        await this.audioContext.audioWorklet.addModule("src/AudioWorkletProcessors/BiquadFilter.js");
         this.biquadLowPassFilter = new AudioWorkletNode(this.audioContext, "MyBiquadFilter");
 
-        await this.audioContext.audioWorklet.addModule("js/AudioWorkletProcessors/BiquadFilter.js");
+        await this.audioContext.audioWorklet.addModule("src/AudioWorkletProcessors/BiquadFilter.js");
         this.biquadHighPassFilter = new AudioWorkletNode(this.audioContext, "MyBiquadFilter");
 
-        await this.audioContext.audioWorklet.addModule("js/AudioWorkletProcessors/OnePoleLowpass.js");
+        await this.audioContext.audioWorklet.addModule("src/AudioWorkletProcessors/OnePoleLowpass.js");
         this.onePoleLowpass = new AudioWorkletNode(this.audioContext, "OnePoleLowpass");
 
         // this.analyser.fftSize = 2048;
