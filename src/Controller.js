@@ -68,37 +68,37 @@ class Controller {
     }
 
     addFilter(filterType = "lowpass", 
-            frequency = FilterMinMax.frequency.max, 
-            Q = FilterMinMax.Q.min, 
+            freq = FilterMinMax.frequency.max, 
+            q = FilterMinMax.Q.min, 
             gain = FilterMinMax.gain.mid) 
     {
-        const filter = this.noiseSynth.addFilter();
-        filter.type = filterType;
-        filter.frequency.value = frequency;
-        filter.Q.value = Q;
-        filter.gain.value = gain;
+        const filterData = this.model.addFilter(freq, q, gain, filterType);
 
-        const filterData = this.model.addFilter(filter);
+        if (this.audioIsInit) {
+            this.noiseSynth.addFilter(filterData);
+        }
 
-        this.view.createFilterControls(filter, 
+        this.view.createFilterControls(filterData, 
             this.handleFilterFrequencyDialChange.bind(this), 
             this.handleFilterQDialChange.bind(this), 
             this.handleFilterGainDialChange.bind(this),
-            this.handleRemoveFilter.bind(this),
-            filterData
+            this.handleRemoveFilter.bind(this)
         );
     }
 
     handleFilterFrequencyDialChange(value, filter) {
         this.noiseSynth.updateFilter(value, filter, "frequency", true);
+        this.model.filterData[filter.id].Frequency = value;
     }
 
     handleFilterQDialChange(value, filter) {
         this.noiseSynth.updateFilter(value, filter, "Q", false);
+        this.model.filterData[filter.id].Q = value;
     }
 
     handleFilterGainDialChange(value, filter) {
         this.noiseSynth.updateFilter(value, filter, "gain", false);
+        this.model.filterData[filter.id].Gain = value;
     }   
 
     handleSaveButton() {
@@ -113,10 +113,9 @@ class Controller {
         this.model.clearLocalStorage();
     }
      
-    handleRemoveFilter(filter, filterData) {
-        this.noiseSynth.removeFilter(filter);
-        this.model.removeFilter(filter);
-        delete this.model.filterData[filterData.id]
+    handleRemoveFilter(filterData) {
+        this.noiseSynth.removeFilter(filterData);
+        this.model.removeFilter(filterData);
         console.log(this.model.filterData);
     }
 

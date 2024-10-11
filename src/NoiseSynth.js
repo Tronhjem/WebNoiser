@@ -10,9 +10,9 @@ class NoiseSynth{
         this.onePoleLowpass = null;
         this.analyser = null;
         this.gainNode = null;
-        this.filters = [];
         this.dataArray = null;
         this.bufferLength = 0;
+        this.filters = {};
     }
 
     async initialize(){
@@ -42,7 +42,7 @@ class NoiseSynth{
     
     clear(){
         this.disconnectAll();
-        this.filters = [];
+        this.filters = {};
     }
 
     getLogFrequency(value) {
@@ -71,25 +71,22 @@ class NoiseSynth{
         console.log(`Setting highpass to: ${value}`);
     }
     
-    addFilter(filterType="lowpass", frequency=18000.0, Q=0.5, gain=0.0)
+    addFilter(filterData)
     {
         const filter = this.audioContext.createBiquadFilter();
-        filter.type = filterType;
-        filter.frequency.value = frequency;
-        filter.Q.value = Q;
-        filter.gain.value = gain;    
+        filter.type = filterData.FilterType;
+        filter.frequency.value = filterData.Frequency;
+        filter.Q.value = FilterData.Q;
+        filter.gain.value = FilterData.Gain;    
         
-        this.filters.push(filter);
+        this.filters[filterData.id] = filter;
         this.updateAudioGraph();
 
         return filter;
     }
 
     removeFilter(filter){
-        const index = this.filters.indexOf(filter);
-        if (index > -1) {
-            this.filters.splice(index, 1);
-        }
+        delete this.filters[filter.id];
         this.updateAudioGraph();
     }
 
@@ -108,7 +105,9 @@ class NoiseSynth{
 
     connectAll() {
         let previousNode = this.pinkNoise;
-        this.filters.forEach(filter => {
+
+        Object.keys(this.filters).forEach(key => {
+            const filter = this.filters[key];
             previousNode.connect(filter);
             previousNode = filter;
         });
@@ -127,8 +126,9 @@ class NoiseSynth{
         this.biquadHighPassFilter.disconnect();
         this.gainNode.disconnect();
 
-        this.filters.forEach(filter => {
-            filter.disconnect();
+        Object.keys(this.filters).forEach(key => {
+            const filter = this.filters[key];
+            previousNode.disconnect(filter);
         });
     }
 

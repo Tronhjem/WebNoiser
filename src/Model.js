@@ -46,22 +46,17 @@ class Model {
         this.filters = newFilters;
     }
 
-    addFilter(filter){
-        const filterDataEntry = {id: Date.now(), frequency: 15000, Q: 0.1, gain: 0};
+    addFilter(freq, q, gain, filterType){
+        const filterDataEntry = {id: Date.now(), Frequency: freq, Q: q, Gain: gain, FilterType: filterType};
         this.filterData[filterDataEntry.id] = filterDataEntry;
         console.log(this.filterData)
 
         this.filters.push(filter);
-        // console.log("Filter added");
-        // console.log(this.filters);
         return filterDataEntry;
     }
 
-    removeFilter(filter){
-        const index = this.filters.indexOf(filter);
-        if (index > -1) {
-            this.filters.splice(index, 1);
-        }
+    removeFilter(filterData){
+        delete this.filterData[filterData.id]
         console.log("Filter removed");
         console.log(this.filters);
     }

@@ -153,14 +153,14 @@ class View {
         return container;
     }
 
-    createFilterControls(filter, changeFrequencyCallback, changeQCallback, changeGainCallback, OnRemoveFilter, filterData) {
+    createFilterControls(filterData, changeFrequencyCallback, changeQCallback, changeGainCallback, OnRemoveFilter) {
         const container = document.createElement("div");
         container.classList.add("filter-controls");
         container.classList.add("row");
 
-        const frequencyDial = this.createDial(FilterMinMax.frequency.min, FilterMinMax.frequency.max, filter.frequency.value, true, changeFrequencyCallback, filter, 0, "Freq", "Hz");
-        const qDial = this.createDial(FilterMinMax.Q.min, FilterMinMax.Q.max, filter.Q.value, false, changeQCallback, filter, 2, "Q", "");
-        const gainDial = this.createDial(FilterMinMax.gain.min, FilterMinMax.gain.max, filter.gain.value, false, changeGainCallback, filter, 0, "Gain", "dB");
+        const frequencyDial = this.createDial(FilterMinMax.frequency.min, FilterMinMax.frequency.max, filterData.Frequency, true, changeFrequencyCallback, filterData, 0, "Freq", "Hz");
+        const qDial = this.createDial(FilterMinMax.Q.min, FilterMinMax.Q.max, filterData.Q, false, changeQCallback, filterData, 2, "Q", "");
+        const gainDial = this.createDial(FilterMinMax.gain.min, FilterMinMax.gain.max, filterData.Gain, false, changeGainCallback, filterData, 0, "Gain", "dB");
 
         const typeSelector = document.createElement("select");
         typeSelector.classList.add("filter-type-selector");
@@ -168,14 +168,14 @@ class View {
             const option = document.createElement("option");
             option.value = type;
             option.textContent = type;
-            if (filter.type === type) {
+            if (filterData.type === type) {
                 option.selected = true;
             }
             typeSelector.appendChild(option);
         });
 
         typeSelector.addEventListener("change", (event) => {
-            filter.type = event.target.value;
+            filterData.type = event.target.value;
         });
 
         const removeButton = document.createElement("button");
@@ -184,7 +184,7 @@ class View {
         removeButton.textContent = "Remove";
         removeButton.addEventListener("click", (event) => {
             container.remove();
-            OnRemoveFilter(filter, filterData);
+            OnRemoveFilter(filterData);
         });
 
         container.appendChild(frequencyDial);
