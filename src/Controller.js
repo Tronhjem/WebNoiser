@@ -78,18 +78,30 @@ class Controller {
     }
 
     handleFilterFrequencyDialChange(value, filterData) {
-        this.noiseSynth.updateFilter(value, filterData, "frequency", true);
-        this.model.globalValueTree.filterData[filterData.id].Frequency = value;
+        const min = FilterMinMax.frequency.min;
+        const max = FilterMinMax.frequency.max;
+        const setValue = Math.pow(10, (value / dialMax) * (Math.log10(max) - Math.log10(min)) + Math.log10(min));
+
+        this.noiseSynth.updateFilter(setValue, filterData, "frequency", true);
+        this.model.globalValueTree.filterData[filterData.id].Frequency = setValue;
     }
 
     handleFilterQDialChange(value, filterData) {
-        this.noiseSynth.updateFilter(value, filterData, "Q", false);
-        this.model.globalValueTree.filterData[filterData.id].Q = value;
+        const min = FilterMinMax.Q.min;
+        const max = FilterMinMax.Q.max;
+        const setValue = (value / dialMax) * (max - min) + min;
+
+        this.noiseSynth.updateFilter(setValue, filterData, "Q", false);
+        this.model.globalValueTree.filterData[filterData.id].Q = setValue;
     }
 
     handleFilterGainDialChange(value, filterData) {
-        this.noiseSynth.updateFilter(value, filterData, "gain", false);
-        this.model.globalValueTree.filterData[filterData.id].Gain = value;
+        const min = FilterMinMax.gain.min;
+        const max = FilterMinMax.gain.max;
+        const setValue = (value / dialMax) * (max - min) + min;
+
+        this.noiseSynth.updateFilter(setValue, filterData, "gain", false);
+        this.model.globalValueTree.filterData[filterData.id].Gain = setValue;
     }   
 
     handleFilterTypeChange(value, filterData) {
@@ -112,23 +124,30 @@ class Controller {
     handleRemoveFilter(filterData) {
         this.noiseSynth.removeFilter(filterData);
         this.model.removeFilter(filterData);
-        console.log(this.model.filterData);
     }
 
     saveAllValues() {
         this.model.saveValues();
-        console.log("Saved values");
     }
 
     loadAllValues() {
-        
         this.noiseSynth.clear();
         this.model.loadValues();
         this.view.clearFilterControls();
 
         Object.keys(this.model.globalValueTree.filterData).forEach(key => {
-            const filter = this.model.globalValueTree.filterData[key];
-            this.addFilter(filter.filterFype, filter.Frequency, filter.Q, filter.Gain);
+            const filterData = this.model.globalValueTree.filterData[key];
+            // this.addFilter(filter.filterFype, filter.Frequency, filter.Q, filter.Gain);
+
+            this.view.createFilterControls(filterData, 
+                this.handleFilterFrequencyDialChange.bind(this), 
+                this.handleFilterQDialChange.bind(this), 
+                this.handleFilterGainDialChange.bind(this),
+                this.handleFilterTypeChange.bind(this),
+                this.handleRemoveFilter.bind(this)
+            );
+
+            this.noiseSynth.addFilterRuntime(filterData);
         });
 
         this.view.createVolumeControl(this.handleVolumeChange.bind(this), this.model.globalValueTree.volume);

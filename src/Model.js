@@ -11,17 +11,6 @@ class Model {
     }
 
     saveValues() {
-        // this.globalValueTree.filterSettings = [];
-
-        // this.globalValueTree.filterSettings = this.filters.map(filter => {
-        //     return {
-        //         type: filter.type,
-        //         frequency: filter.frequency.value,
-        //         Q: filter.Q.value,
-        //         gain: filter.gain.value
-        //     };
-        // });
-
         localStorage.setItem("globalvalues", JSON.stringify(this.globalValueTree));
         
         console.log("Saved values: ");
@@ -43,34 +32,27 @@ class Model {
     addFilter(freq, q, gain, filterType){
         const filterDataEntry = {id: Date.now(), Frequency: freq, Q: q, Gain: gain, FilterType: filterType};
         this.globalValueTree.filterData[filterDataEntry.id] = filterDataEntry;
-        console.log(this.filterData)
         return filterDataEntry;
     }
 
     removeFilter(filterData){
         delete this.globalValueTree.filterData[filterData.id]
-        console.log("Filter removed");
-        console.log(this.filters);
     }
 
     updateVolume(value) {
         this.globalValueTree.volume = value;
-        console.log(`Volume updated to: ${value}`);
     }
 
     updateButterworthFrequency(value) {
         this.globalValueTree.biquadLowPass.frequency = value;
-        console.log(`Butterworth frequency updated to: ${value}`);
     }
 
     updateOnePoleFrequency(value) {
         this.globalValueTree.onePoleLowpass.frequency = value;
-        console.log(`One Pole frequency updated to: ${value}`);
     }
 
     clearLocalStorage() {
         localStorage.clear();
-        console.log("Local storage cleared");
     }
 }
 
