@@ -176,7 +176,7 @@ class View {
 
         typeSelector.addEventListener("change", (event) => {
             filterData.type = event.target.value;
-            changeTypeCallback(event.target.value);
+            changeTypeCallback(event.target.value, filterData);
         });
 
         const removeButton = document.createElement("button");
