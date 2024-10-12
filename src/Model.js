@@ -6,23 +6,21 @@ class Model {
             biquadHighPass: { frequency: 40.0 },
             onePoleLowpass: { frequency: 500.0 },
             volume: 0.2,
-            filterSettings: []
+            filterData: {}
         };
-        this.filters = [];
-        this.filterData = {};
     }
 
     saveValues() {
-        this.globalValueTree.filterSettings = [];
+        // this.globalValueTree.filterSettings = [];
 
-        this.globalValueTree.filterSettings = this.filters.map(filter => {
-            return {
-                type: filter.type,
-                frequency: filter.frequency.value,
-                Q: filter.Q.value,
-                gain: filter.gain.value
-            };
-        });
+        // this.globalValueTree.filterSettings = this.filters.map(filter => {
+        //     return {
+        //         type: filter.type,
+        //         frequency: filter.frequency.value,
+        //         Q: filter.Q.value,
+        //         gain: filter.gain.value
+        //     };
+        // });
 
         localStorage.setItem("globalvalues", JSON.stringify(this.globalValueTree));
         
@@ -42,21 +40,15 @@ class Model {
         console.log(this.globalValueTree);
     }
 
-    setFilters(newFilters) {
-        this.filters = newFilters;
-    }
-
     addFilter(freq, q, gain, filterType){
         const filterDataEntry = {id: Date.now(), Frequency: freq, Q: q, Gain: gain, FilterType: filterType};
-        this.filterData[filterDataEntry.id] = filterDataEntry;
+        this.globalValueTree.filterData[filterDataEntry.id] = filterDataEntry;
         console.log(this.filterData)
-
-        this.filters.push(filter);
         return filterDataEntry;
     }
 
     removeFilter(filterData){
-        delete this.filterData[filterData.id]
+        delete this.globalValueTree.filterData[filterData.id]
         console.log("Filter removed");
         console.log(this.filters);
     }

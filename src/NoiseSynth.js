@@ -13,9 +13,10 @@ class NoiseSynth{
         this.dataArray = null;
         this.bufferLength = 0;
         this.filters = {};
+        this.isInitialized = false;
     }
 
-    async initialize(){
+    async initialize(filterList){
         this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
         this.gainNode = this.audioContext.createGain();
 
@@ -37,10 +38,19 @@ class NoiseSynth{
 
         this.biquadHighPassFilter.parameters.get("filterType").setValueAtTime(MyBiquadFilterTypes.HIGHPASS, this.audioContext.currentTime);
 
+        Object.keys(filterList).forEach(key => {
+            const filter = filterList[key];
+            this.addFilterOffline(filter);
+        });
+
         this.connectAll();
+        this.isInitialized = true;
     }
     
     clear(){
+        if (!this.isInitialized) {
+            return;
+        }
         this.disconnectAll();
         this.filters = {};
     }
@@ -52,58 +62,103 @@ class NoiseSynth{
     }
 
     setVolume(value){
+        if (!this.isInitialized) {
+            return;
+        }
         this.gainNode.gain.value = value;
         console.log(`Setting volume to: ${value}`);
     }
 
     setOnePoleFrequency(value){
+        if (!this.isInitialized) {
+            return;
+        }
         this.onePoleLowpass.parameters.get("freqency").setValueAtTime(value, this.audioContext.currentTime);
         console.log(`Setting onepole to: ${value}`);
     }
 
     setBiqadLowpassFilterFrequency(value){
+        if (!this.isInitialized) {
+            return;
+        }
         this.biquadLowPassFilter.parameters.get("freqency").setValueAtTime(value, this.audioContext.currentTime);
         console.log(`Setting lowpass to: ${value}`);
     }
 
     setBiqadHighpassFilterFrequency(value){
+        if (!this.isInitialized) {
+            return;
+        }
         this.biquadHighPassFilter.parameters.get("freqency").setValueAtTime(value, this.audioContext.currentTime);
         console.log(`Setting highpass to: ${value}`);
     }
     
-    addFilter(filterData)
+    addFilterRuntime(filterData)
     {
-        const filter = this.audioContext.createBiquadFilter();
-        filter.type = filterData.FilterType;
-        filter.frequency.value = filterData.Frequency;
-        filter.Q.value = FilterData.Q;
-        filter.gain.value = FilterData.Gain;    
-        
+        if (!this.isInitialized) {
+            return;
+        }
+
+        const filter = this.createFilter(filterData);
+
+        this.disconnectAll();
         this.filters[filterData.id] = filter;
-        this.updateAudioGraph();
+        this.connectAll();
 
         return filter;
     }
 
+    addFilterOffline(filterData){
+        if (!this.audioContext){
+            return;
+        }
+        const filter = this.createFilter(filterData);
+        this.filters[filterData.id] = filter;
+    }
+
+    createFilter(filterData){
+        const filter = this.audioContext.createBiquadFilter();
+        filter.type = filterData.FilterType;
+        filter.frequency.value = filterData.Frequency;
+        filter.Q.value = filterData.Q;
+        filter.gain.value = filterData.Gain;    
+        
+        return filter;
+    }
+
     removeFilter(filter){
+        if (!this.isInitialized) {
+            return;
+        }
         delete this.filters[filter.id];
         this.updateAudioGraph();
     }
 
-    updateFilter(value, filter, property, isLogarithmic){
-        let min = FilterMinMax[property].min;
-        let max = FilterMinMax[property].max;
+    updateFilter(value, filterData, property, isLogarithmic){
+        if (!this.isInitialized) {
+            return;
+        }
+        if (property != "filterType") {
+            let min = FilterMinMax[property].min;
+            let max = FilterMinMax[property].max;
 
-        if (isLogarithmic) {
-            const setValue = Math.pow(10, (value / dialMax) * (Math.log10(max) - Math.log10(min)) + Math.log10(min));
-            filter[property].setValueAtTime(setValue, this.audioContext.currentTime);
-        } else {
-            const setValue = (value / dialMax) * (max - min) + min;
-            filter[property].setValueAtTime(setValue, this.audioContext.currentTime);
+            if (isLogarithmic) {
+                const setValue = Math.pow(10, (value / dialMax) * (Math.log10(max) - Math.log10(min)) + Math.log10(min));
+                this.filters[filterData.id][property].setValueAtTime(setValue, this.audioContext.currentTime);
+            } else {
+                const setValue = (value / dialMax) * (max - min) + min;
+                this.filters[filterData.id][property].setValueAtTime(setValue, this.audioContext.currentTime);
+            }
+        }
+        else{
+            this.filters[filterData.id].type = value;
         }
     }
 
     connectAll() {
+        if (!this.isInitialized) {
+            return;
+        }
         let previousNode = this.pinkNoise;
 
         Object.keys(this.filters).forEach(key => {
@@ -120,6 +175,9 @@ class NoiseSynth{
     }
 
     disconnectAll() {
+        if (!this.isInitialized) {
+            return;
+        }
         this.pinkNoise.disconnect();
         this.onePoleLowpass.disconnect();
         this.biquadLowPassFilter.disconnect();
@@ -128,16 +186,22 @@ class NoiseSynth{
 
         Object.keys(this.filters).forEach(key => {
             const filter = this.filters[key];
-            previousNode.disconnect(filter);
+            filter.disconnect();
         });
     }
 
     updateAudioGraph() {
+        if (!this.isInitialized) {
+            return;
+        }
         this.disconnectAll();
         this.connectAll();
     }
 
     drawSpectrum() {
+        if (!this.isInitialized) {
+            return;
+        }
         if (!canvasCtx){
             return;
         }

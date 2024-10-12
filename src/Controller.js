@@ -8,7 +8,6 @@ class Controller {
         this.model = new Model();
         this.view = new View();
         this.noiseSynth = new NoiseSynth();
-        this.audioIsInit = false;
         
         this.view.bindPlayButton(this.handlePlayButton.bind(this));
         this.view.bindAddFilterButton(this.handleAddFilterButton.bind(this));
@@ -22,10 +21,9 @@ class Controller {
     }
 
     async startAudio(){
-        if (!this.noiseSynth.audioContext) 
+        if (!this.noiseSynth.isInitialized) 
         {
-            await this.noiseSynth.initialize();
-            this.audioIsInit = true;
+            await this.noiseSynth.initialize(this.model.globalValueTree.filterData);
             this.noiseSynth.setVolume(this.model.globalValueTree.volume);
             this.noiseSynth.setBiqadLowpassFilterFrequency(this.model.globalValueTree.biquadLowPass.frequency);
             this.noiseSynth.setBiqadHighpassFilterFrequency(this.model.globalValueTree.biquadHighPass.frequency);
@@ -36,16 +34,12 @@ class Controller {
     handleVolumeChange(value) {
             const volume = value / dialMax;
             this.model.updateVolume(volume);
-        if(this.audioIsInit){
             this.noiseSynth.setVolume(volume);
-        }
     }
 
     handleButterworthChange(value) {
             this.model.updateButterworthFrequency(value);
-        if(this.audioIsInit){
             this.noiseSynth.setBiqadLowpassFilterFrequency(value);
-        }
     }
 
     handleOnePoleChange(value) {
@@ -54,9 +48,7 @@ class Controller {
 
             const frequency = Math.pow(10, (value / dialMax) * (Math.log10(max) - Math.log10(min)) + Math.log10(min));
             this.model.updateOnePoleFrequency(frequency);
-        if(this.audioIsInit){
             this.noiseSynth.setOnePoleFrequency(frequency);
-        }
     }
 
     handlePlayButton() {
@@ -74,31 +66,35 @@ class Controller {
     {
         const filterData = this.model.addFilter(freq, q, gain, filterType);
 
-        if (this.audioIsInit) {
-            this.noiseSynth.addFilter(filterData);
-        }
+        this.noiseSynth.addFilterRuntime(filterData);
 
         this.view.createFilterControls(filterData, 
             this.handleFilterFrequencyDialChange.bind(this), 
             this.handleFilterQDialChange.bind(this), 
             this.handleFilterGainDialChange.bind(this),
+            this.handleFilterTypeChange.bind(this),
             this.handleRemoveFilter.bind(this)
         );
     }
 
-    handleFilterFrequencyDialChange(value, filter) {
-        this.noiseSynth.updateFilter(value, filter, "frequency", true);
-        this.model.filterData[filter.id].Frequency = value;
+    handleFilterFrequencyDialChange(value, filterData) {
+        this.noiseSynth.updateFilter(value, filterData, "frequency", true);
+        this.model.globalValueTree.filterData[filterData.id].Frequency = value;
     }
 
-    handleFilterQDialChange(value, filter) {
-        this.noiseSynth.updateFilter(value, filter, "Q", false);
-        this.model.filterData[filter.id].Q = value;
+    handleFilterQDialChange(value, filterData) {
+        this.noiseSynth.updateFilter(value, filterData, "Q", false);
+        this.model.globalValueTree.filterData[filterData.id].Q = value;
     }
 
-    handleFilterGainDialChange(value, filter) {
-        this.noiseSynth.updateFilter(value, filter, "gain", false);
-        this.model.filterData[filter.id].Gain = value;
+    handleFilterGainDialChange(value, filterData) {
+        this.noiseSynth.updateFilter(value, filterData, "gain", false);
+        this.model.globalValueTree.filterData[filterData.id].Gain = value;
+    }   
+
+    handleFilterTypeChange(value, filterData) {
+        this.noiseSynth.updateFilter(value, filterData, "filterType", false);
+        this.model.globalValueTree.filterData[filterData.id].FilterType = value;
     }   
 
     handleSaveButton() {
@@ -125,12 +121,14 @@ class Controller {
     }
 
     loadAllValues() {
+        
         this.noiseSynth.clear();
         this.model.loadValues();
         this.view.clearFilterControls();
 
-        this.model.globalValueTree.filterSettings.forEach(filter => {
-            this.addFilter(filter.type, filter.frequency, filter.Q, filter.gain);
+        Object.keys(this.model.globalValueTree.filterData).forEach(key => {
+            const filter = this.model.globalValueTree.filterData[key];
+            this.addFilter(filter.filterFype, filter.Frequency, filter.Q, filter.Gain);
         });
 
         this.view.createVolumeControl(this.handleVolumeChange.bind(this), this.model.globalValueTree.volume);

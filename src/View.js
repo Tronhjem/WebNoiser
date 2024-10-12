@@ -76,7 +76,7 @@ class View {
         return Math.floor(value * factor) / factor;
     }
 
-    createDial(min, max, initValue, isLog, changeCallback, filter, decimals = 2, name, suffix) {
+    createDial(min, max, initValue, isLog, changeCallback, filterData, decimals = 2, name, suffix) {
         const container = document.createElement("div");
         container.classList.add("dial-container");
 
@@ -125,7 +125,7 @@ class View {
                 textValue = this.roundDown((value / dialMax) * (max - min) + min, decimals);
             }
             textElement.textContent = `${textValue} ${suffix}`;
-            changeCallback(value, filter)
+            changeCallback(value, filterData)
         };
 
         dial.addEventListener("mousedown", (event) => {
@@ -153,7 +153,7 @@ class View {
         return container;
     }
 
-    createFilterControls(filterData, changeFrequencyCallback, changeQCallback, changeGainCallback, OnRemoveFilter) {
+    createFilterControls(filterData, changeFrequencyCallback, changeQCallback, changeGainCallback, changeTypeCallback, OnRemoveFilter) {
         const container = document.createElement("div");
         container.classList.add("filter-controls");
         container.classList.add("row");
@@ -176,6 +176,7 @@ class View {
 
         typeSelector.addEventListener("change", (event) => {
             filterData.type = event.target.value;
+            changeTypeCallback(event.target.value, filterData);
         });
 
         const removeButton = document.createElement("button");
