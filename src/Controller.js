@@ -137,7 +137,7 @@ class Controller {
 
         Object.keys(this.model.globalValueTree.filterData).forEach(key => {
             const filterData = this.model.globalValueTree.filterData[key];
-            // this.addFilter(filter.filterFype, filter.Frequency, filter.Q, filter.Gain);
+            this.noiseSynth.addFilterRuntime(filterData);
 
             this.view.createFilterControls(filterData, 
                 this.handleFilterFrequencyDialChange.bind(this), 
@@ -147,11 +147,9 @@ class Controller {
                 this.handleRemoveFilter.bind(this)
             );
 
-            this.noiseSynth.addFilterRuntime(filterData);
         });
 
-        this.view.createVolumeControl(this.handleVolumeChange.bind(this), this.model.globalValueTree.volume);
-        this.view.createOnePoleControl(this.handleOnePoleChange.bind(this), this.model.globalValueTree.onePoleLowpass.frequency);
+        this.view.updateAllDials(this.model.globalValueTree);
         this.noiseSynth.updateAudioGraph();
     }
 }

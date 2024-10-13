@@ -1,4 +1,5 @@
 import {constantFilterTypes, FilterMinMax, dialMin, dialMax} from "./Constants.js"
+import Dial from "./Dial.js";
 
 class View {
     constructor() {
@@ -9,6 +10,14 @@ class View {
         this.clearLocalStorageButton = document.getElementById("clear-local-storage");
         this.filterControlsContainer = document.getElementById("filter-controls-container");
         this.coreControls = document.getElementById("core-controls");
+
+        this.volumeDial = null;
+        this.onePoleDial = null;
+    }
+
+    updateAllDials(globalValueTree){
+        this.volumeDial.setDial(globalValueTree.volume);
+        this.onePoleDial.setDial(globalValueTree.onePoleLowpass.frequency);
     }
 
     bindPlayButton(handler) {
@@ -46,18 +55,19 @@ class View {
             this.filterControlsContainer.removeChild(this.filterControlsContainer.firstChild);
         }
 
-        while(this.coreControls.firstChild){
-            this.coreControls.removeChild(this.coreControls.firstChild);
-        }
+        // while(this.coreControls.firstChild){
+        //     this.coreControls.removeChild(this.coreControls.firstChild);
+        // }
     }
 
     createVolumeControl(volumeChangedCallback, initValue = 0.5){
         const container = document.createElement("div");
         container.classList.add("volume-control");
 
-        const volumeDial = this.createDial(0, 1, initValue, false, volumeChangedCallback, null, 2, "Volume", "");
+        // const volumeDial = this.createDial(0, 1, initValue, false, volumeChangedCallback, null, 2, "Volume", "");
+        this.volumeDial = new Dial(0, 1, initValue, false, volumeChangedCallback, null, 2, "Volume", "");
 
-        container.appendChild(volumeDial);
+        container.appendChild(this.volumeDial.getContainer());
         this.coreControls.appendChild(container);
     }
 
@@ -65,9 +75,10 @@ class View {
         const container = document.createElement("div");
         container.classList.add("onepole-control");
 
-        const volumeDial = this.createDial(FilterMinMax.frequency.min, FilterMinMax.frequency.max, initValue, true, onePoleChangedCallback, null, 2, "Freq", "Hz");
+        // const volumeDial = this.createDial(FilterMinMax.frequency.min, FilterMinMax.frequency.max, initValue, true, onePoleChangedCallback, null, 2, "Freq", "Hz");
+        this.onePoleDial = new Dial(FilterMinMax.frequency.min, FilterMinMax.frequency.max, initValue, true, onePoleChangedCallback, null, 2, "Freq", "Hz");
 
-        container.appendChild(volumeDial);
+        container.appendChild(this.onePoleDial.getContainer());
         this.coreControls.appendChild(container);
     }
 
@@ -99,7 +110,9 @@ class View {
         const functionText = document.createElement("div");
         functionText.classList.add("dial-function-text");
         functionText.textContent = name;
+
         container.appendChild(functionText);
+        container.appendChild(dial);
 
         let isDragging = false;
         let startY = 0;
@@ -149,7 +162,6 @@ class View {
         });
 
         updateDial();
-        container.appendChild(dial);
         return container;
     }
 
