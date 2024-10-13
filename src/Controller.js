@@ -13,7 +13,6 @@ class Controller {
         this.view.bindAddFilterButton(this.handleAddFilterButton.bind(this));
         this.view.bindSaveButton(this.handleSaveButton.bind(this));
         this.view.bindLoadButton(this.handleLoadButton.bind(this));
-
         this.view.bindClearLocalStorageButton(this.handleClearLocalStorageButton.bind(this));
 
         this.view.createVolumeControl(this.handleVolumeChange.bind(this), this.model.globalValueTree.volume);
@@ -32,23 +31,23 @@ class Controller {
     }
 
     handleVolumeChange(value) {
-            const volume = value / dialMax;
-            this.model.updateVolume(volume);
-            this.noiseSynth.setVolume(volume);
+        const volume = value / dialMax;
+        this.model.updateVolume(volume);
+        this.noiseSynth.setVolume(volume);
     }
 
     handleButterworthChange(value) {
-            this.model.updateButterworthFrequency(value);
-            this.noiseSynth.setBiqadLowpassFilterFrequency(value);
+        this.model.updateButterworthFrequency(value);
+        this.noiseSynth.setBiqadLowpassFilterFrequency(value);
     }
 
     handleOnePoleChange(value) {
-            let min = FilterMinMax.frequency.min;
-            let max = FilterMinMax.frequency.max;
+        let min = FilterMinMax.frequency.min;
+        let max = FilterMinMax.frequency.max;
 
-            const frequency = Math.pow(10, (value / dialMax) * (Math.log10(max) - Math.log10(min)) + Math.log10(min));
-            this.model.updateOnePoleFrequency(frequency);
-            this.noiseSynth.setOnePoleFrequency(frequency);
+        const frequency = Math.pow(10, (value / dialMax) * (Math.log10(max) - Math.log10(min)) + Math.log10(min));
+        this.model.updateOnePoleFrequency(frequency);
+        this.noiseSynth.setOnePoleFrequency(frequency);
     }
 
     handlePlayButton() {
@@ -146,7 +145,6 @@ class Controller {
                 this.handleFilterTypeChange.bind(this),
                 this.handleRemoveFilter.bind(this)
             );
-
         });
 
         this.view.updateAllDials(this.model.globalValueTree);

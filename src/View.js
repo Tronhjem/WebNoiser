@@ -54,17 +54,12 @@ class View {
         while (this.filterControlsContainer.firstChild) {
             this.filterControlsContainer.removeChild(this.filterControlsContainer.firstChild);
         }
-
-        // while(this.coreControls.firstChild){
-        //     this.coreControls.removeChild(this.coreControls.firstChild);
-        // }
     }
 
     createVolumeControl(volumeChangedCallback, initValue = 0.5){
         const container = document.createElement("div");
         container.classList.add("volume-control");
 
-        // const volumeDial = this.createDial(0, 1, initValue, false, volumeChangedCallback, null, 2, "Volume", "");
         this.volumeDial = new Dial(0, 1, initValue, false, volumeChangedCallback, null, 2, "Volume", "");
 
         container.appendChild(this.volumeDial.getContainer());
@@ -75,94 +70,10 @@ class View {
         const container = document.createElement("div");
         container.classList.add("onepole-control");
 
-        // const volumeDial = this.createDial(FilterMinMax.frequency.min, FilterMinMax.frequency.max, initValue, true, onePoleChangedCallback, null, 2, "Freq", "Hz");
         this.onePoleDial = new Dial(FilterMinMax.frequency.min, FilterMinMax.frequency.max, initValue, true, onePoleChangedCallback, null, 2, "Freq", "Hz");
 
         container.appendChild(this.onePoleDial.getContainer());
         this.coreControls.appendChild(container);
-    }
-
-    roundDown(value, decimals) {
-        const factor = Math.pow(10, decimals);
-        return Math.floor(value * factor) / factor;
-    }
-
-    createDial(min, max, initValue, isLog, changeCallback, filterData, decimals = 2, name, suffix) {
-        const container = document.createElement("div");
-        container.classList.add("dial-container");
-
-        const dial = document.createElement("div");
-        dial.classList.add("dial");
-
-        const indicator = document.createElement("div");
-        indicator.classList.add("dial-indicator");
-        dial.appendChild(indicator);
-
-        const circle = document.createElement("div");
-        circle.classList.add("dial-indicator-tip");
-        indicator.appendChild(circle);
-
-        const textElement = document.createElement("div");
-        textElement.classList.add("dial-value-text");
-        textElement.textContent = initValue;
-        container.appendChild(textElement);
-
-        const functionText = document.createElement("div");
-        functionText.classList.add("dial-function-text");
-        functionText.textContent = name;
-
-        container.appendChild(functionText);
-        container.appendChild(dial);
-
-        let isDragging = false;
-        let startY = 0;
-        
-        let value = 0;
-        if(isLog){
-            value = (dialMax * Math.log(initValue / min)) / Math.log(max / min);
-        }
-        else{
-            value = ( initValue - min) / (max - min) * dialMax;
-        }
-
-        const updateDial = () => {
-            const angle = (value / dialMax ) * 270 - 135;
-            indicator.style.transform = `translate(-50%, -100%) rotate(${angle}deg)`;
-            
-            let textValue = 0;
-
-            if(isLog){
-                textValue = Math.floor(Math.pow(10, (value / dialMax) * (Math.log10(max) - Math.log10(min)) + Math.log10(min)));
-            } 
-            else {
-                textValue = this.roundDown((value / dialMax) * (max - min) + min, decimals);
-            }
-            textElement.textContent = `${textValue} ${suffix}`;
-            changeCallback(value, filterData)
-        };
-
-        dial.addEventListener("mousedown", (event) => {
-            isDragging = true;
-            startY = event.clientY;
-            event.preventDefault();
-        });
-
-        document.addEventListener("mousemove", (event) => {
-            if (isDragging) {
-                const deltaY = startY - event.clientY;
-                value += deltaY * 1;
-                value = Math.max(dialMin, Math.min(dialMax, value));
-                startY = event.clientY;
-                updateDial();
-            }
-        });
-
-        document.addEventListener("mouseup", () => {
-            isDragging = false;
-        });
-
-        updateDial();
-        return container;
     }
 
     createFilterControls(filterData, changeFrequencyCallback, changeQCallback, changeGainCallback, changeTypeCallback, OnRemoveFilter) {
@@ -170,9 +81,9 @@ class View {
         container.classList.add("filter-controls");
         container.classList.add("row");
 
-        const frequencyDial = this.createDial(FilterMinMax.frequency.min, FilterMinMax.frequency.max, filterData.Frequency, true, changeFrequencyCallback, filterData, 0, "Freq", "Hz");
-        const qDial = this.createDial(FilterMinMax.Q.min, FilterMinMax.Q.max, filterData.Q, false, changeQCallback, filterData, 2, "Q", "");
-        const gainDial = this.createDial(FilterMinMax.gain.min, FilterMinMax.gain.max, filterData.Gain, false, changeGainCallback, filterData, 0, "Gain", "dB");
+        const frequencyDial = new Dial(FilterMinMax.frequency.min, FilterMinMax.frequency.max, filterData.Frequency, true, changeFrequencyCallback, filterData, 0, "Freq", "Hz");
+        const qDial = new Dial(FilterMinMax.Q.min, FilterMinMax.Q.max, filterData.Q, false, changeQCallback, filterData, 2, "Q", "");
+        const gainDial = new Dial(FilterMinMax.gain.min, FilterMinMax.gain.max, filterData.Gain, false, changeGainCallback, filterData, 0, "Gain", "dB");
 
         const typeSelector = document.createElement("select");
         typeSelector.classList.add("filter-type-selector");
@@ -200,9 +111,10 @@ class View {
             OnRemoveFilter(filterData);
         });
 
-        container.appendChild(frequencyDial);
-        container.appendChild(qDial);
-        container.appendChild(gainDial);
+        container.appendChild(frequencyDial.getContainer());
+        container.appendChild(qDial.getContainer());
+        container.appendChild(gainDial.getContainer());
+
         container.appendChild(typeSelector);
         container.appendChild(removeButton);
 
