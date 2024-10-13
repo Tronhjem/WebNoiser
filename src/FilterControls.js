@@ -6,10 +6,11 @@ class FilterControls {
         this.container = document.createElement("div");
         this.container.classList.add("filter-controls");
         this.container.classList.add("row");
+        this.filterData = filterData;
 
-        const frequencyDial = new Dial(FilterMinMax.frequency.min, FilterMinMax.frequency.max, filterData.Frequency, true, changeFrequencyCallback, filterData, 0, "Freq", "Hz");
-        const qDial = new Dial(FilterMinMax.Q.min, FilterMinMax.Q.max, filterData.Q, false, changeQCallback, filterData, 2, "Q", "");
-        const gainDial = new Dial(FilterMinMax.gain.min, FilterMinMax.gain.max, filterData.Gain, false, changeGainCallback, filterData, 0, "Gain", "dB");
+        this.frequencyDial = new Dial(FilterMinMax.frequency.min, FilterMinMax.frequency.max, this.filterData.Frequency, true, changeFrequencyCallback, this.filterData, 0, "Freq", "Hz");
+        this.qDial = new Dial(FilterMinMax.Q.min, FilterMinMax.Q.max, this.filterData.Q, false, changeQCallback, this.filterData, 2, "Q", "");
+        this.gainDial = new Dial(FilterMinMax.gain.min, FilterMinMax.gain.max, this.filterData.Gain, false, changeGainCallback, this.filterData, 0, "Gain", "dB");
 
         const typeSelector = document.createElement("select");
         typeSelector.classList.add("filter-type-selector");
@@ -17,15 +18,16 @@ class FilterControls {
             const option = document.createElement("option");
             option.value = type;
             option.textContent = type;
-            if (filterData.type === type) {
+            if (this.filterData.type === type) {
                 option.selected = true;
             }
             typeSelector.appendChild(option);
         });
 
         typeSelector.addEventListener("change", (event) => {
-            filterData.type = event.target.value;
-            changeTypeCallback(event.target.value, filterData);
+            this.filterData.type = event.target.value;
+            changeTypeCallback(event.target.value, this.filterData);
+            this.updateDialVisibilty();
         });
 
         const removeButton = document.createElement("button");
@@ -34,14 +36,48 @@ class FilterControls {
         removeButton.textContent = "Remove";
         removeButton.addEventListener("click", (event) => {
             this.container.remove();
-            OnRemoveFilter(filterData);
+            OnRemoveFilter(this.filterData);
         });
 
-        this.container.appendChild(frequencyDial.getContainer());
-        this.container.appendChild(qDial.getContainer());
-        this.container.appendChild(gainDial.getContainer());
+        this.updateDialVisibilty();
+
+        this.container.appendChild(this.frequencyDial.getContainer());
+        this.container.appendChild(this.qDial.getContainer());
+        this.container.appendChild(this.gainDial.getContainer());
         this.container.appendChild(typeSelector);
         this.container.appendChild(removeButton);
+    }
+
+    updateDialVisibilty(){
+        switch (this.filterData.FilterType) {
+            case "lowpass":
+            case "highpass":
+                this.frequencyDial.isVisible(true);
+                this.qDial.isVisible(false);
+                this.gainDial.isVisible(false);
+                break;
+
+            case "bandpass":
+            case "notch":
+                this.frequencyDial.isVisible(true);
+                this.qDial.isVisible(true);
+                this.gainDial.isVisible(true);
+                break;
+                
+            case "lowshelf":
+            case "highshelf":
+                this.frequencyDial.isVisible(true);
+                this.qDial.isVisible(false);
+                this.gainDial.isVisible(true);
+                break;
+
+            case "peaking":
+            default:
+                this.frequencyDial.isVisible(true);
+                this.qDial.isVisible(true);
+                this.gainDial.isVisible(true);
+                break;
+        }
     }
 
     getContainer() {

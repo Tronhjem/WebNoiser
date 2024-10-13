@@ -119,5 +119,13 @@ class Dial {
         }
         this.textElement.textContent = `${textValue} ${this.suffix}`;
     }
+
+    isVisible(visible){
+        if(visible){
+            this.container.style.display = "block";
+        } else {
+            this.container.style.display = "none";
+        }
+    }
 }
 export default Dial;
