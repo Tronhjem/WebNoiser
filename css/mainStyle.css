@@ -12,6 +12,8 @@ body {
 
 .my-button{
     background-color: var(--midColor);
+    transition: 0.1s ease;
+
     color: var(--contrastColor);
     border: none;
     text-align: center;
@@ -22,6 +24,15 @@ body {
     cursor: pointer;
     border-radius: 5px;
     padding: 5px 20px;
+    outline: none; /* Remove outline */
+}
+
+.my-button:active {
+    opacity: 0.5;
+}
+
+.my-button:focus {
+    outline: none; /* Remove outline when focused */
 }
 
 .svgContainer {
