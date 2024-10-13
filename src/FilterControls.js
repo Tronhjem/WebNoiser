@@ -61,7 +61,7 @@ class FilterControls {
             case "notch":
                 this.frequencyDial.setActive(true);
                 this.qDial.setActive(true);
-                this.gainDial.setActive(true);
+                this.gainDial.setActive(false);
                 break;
                 
             case "lowshelf":
