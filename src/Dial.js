@@ -11,6 +11,7 @@ class Dial {
         this.decimals = decimals;
         this.name = name;
         this.suffix = suffix;
+        this.isActive = true;
 
         this.container = document.createElement("div");
         this.container.classList.add("dial-container");
@@ -57,13 +58,16 @@ class Dial {
     }
 
     mouseDown(event){
+        if (!this.isActive) {
+            return;
+        }
         this.isDragging = true;
         this.startY = event.clientY;
         event.preventDefault();
     }
 
     mouseMove(mouseEvent){
-        if (this.isDragging) {
+        if (this.isDragging && this.isActive) {
             const deltaY = this.startY - mouseEvent.clientY;
             this.value += deltaY * 1;
             this.value = Math.max(dialMin, Math.min(dialMax, this.value));
@@ -120,11 +124,15 @@ class Dial {
         this.textElement.textContent = `${textValue} ${this.suffix}`;
     }
 
-    isVisible(visible){
-        if(visible){
-            this.container.style.display = "block";
+    setActive(active){
+        if (active) {
+            this.container.classList.remove("faded");
+            this.container.style.pointerEvents = "auto";
+            this.isActive = true;
         } else {
-            this.container.style.display = "none";
+            this.container.classList.add("faded");
+            this.container.style.pointerEvents = "none";
+            this.isActive = true;
         }
     }
 }

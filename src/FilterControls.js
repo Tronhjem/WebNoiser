@@ -52,30 +52,30 @@ class FilterControls {
         switch (this.filterData.FilterType) {
             case "lowpass":
             case "highpass":
-                this.frequencyDial.isVisible(true);
-                this.qDial.isVisible(false);
-                this.gainDial.isVisible(false);
+                this.frequencyDial.setActive(true);
+                this.qDial.setActive(false);
+                this.gainDial.setActive(false);
                 break;
 
             case "bandpass":
             case "notch":
-                this.frequencyDial.isVisible(true);
-                this.qDial.isVisible(true);
-                this.gainDial.isVisible(true);
+                this.frequencyDial.setActive(true);
+                this.qDial.setActive(true);
+                this.gainDial.setActive(true);
                 break;
                 
             case "lowshelf":
             case "highshelf":
-                this.frequencyDial.isVisible(true);
-                this.qDial.isVisible(false);
-                this.gainDial.isVisible(true);
+                this.frequencyDial.setActive(true);
+                this.qDial.setActive(false);
+                this.gainDial.setActive(true);
                 break;
 
             case "peaking":
             default:
-                this.frequencyDial.isVisible(true);
-                this.qDial.isVisible(true);
-                this.gainDial.isVisible(true);
+                this.frequencyDial.setActive(true);
+                this.qDial.setActive(true);
+                this.gainDial.setActive(true);
                 break;
         }
     }

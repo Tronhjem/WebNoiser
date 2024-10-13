@@ -156,3 +156,7 @@ canvas {
     top: 100%;
     color: var(--contrastColor);
 }
+
+.faded {
+    opacity: 0.2;
+}
