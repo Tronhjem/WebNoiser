@@ -1,3 +1,7 @@
+
+echo  "\n"
+echo Pulling latest master
+git pull
 echo  "\n"
 echo "Removing /root/dev/WebNoiser/dist/ \n"
 rm -r /root/dev/WebNoiser/dist/
