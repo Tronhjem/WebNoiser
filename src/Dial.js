@@ -49,12 +49,34 @@ class Dial {
         }
 
         this.dial.addEventListener("mousedown", this.mouseDown.bind(this));
+        this.dial.addEventListener("touchstart", this.touchStart.bind(this));
 
         document.addEventListener("mousemove", this.mouseMove.bind(this));
+        document.addEventListener("touchmove", this.touchMove.bind(this));
 
         document.addEventListener("mouseup", this.mouseUp.bind(this));
+        document.addEventListener("touchend", this.mouseUp.bind(this));
 
         this.updateDialOnDrag();
+    }
+
+    touchStart(event){
+        if (!this.isActive) {
+            return;
+        }
+        this.isDragging = true;
+        this.startY = event.touches[0].clientY;
+        event.preventDefault();
+    }
+
+    touchMove(event){
+        if (this.isDragging && this.isActive) {
+            const deltaY = this.startY - event.touches[0].clientY;
+            this.value += deltaY * 1;
+            this.value = Math.max(dialMin, Math.min(dialMax, this.value));
+            this.startY = event.touches[0].clientY;
+            this.updateDialOnDrag();
+        }
     }
 
     mouseDown(event){
