@@ -1,2 +1,2 @@
-# WebNoiser
-Web based Noise Synthesizer for blocking out environment and for focus. 
+# NoiseNook
+NoiseNook is a web based noise synthesizer for blocking out external environment noise and to enhance focus. 
