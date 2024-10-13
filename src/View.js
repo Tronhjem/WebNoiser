@@ -1,5 +1,6 @@
 import {constantFilterTypes, FilterMinMax, dialMin, dialMax} from "./Constants.js"
 import Dial from "./Dial.js";
+import FilterControls from "./FilterControls.js";
 
 class View {
     constructor() {
@@ -77,49 +78,9 @@ class View {
     }
 
     createFilterControls(filterData, changeFrequencyCallback, changeQCallback, changeGainCallback, changeTypeCallback, OnRemoveFilter) {
-        const container = document.createElement("div");
-        container.classList.add("filter-controls");
-        container.classList.add("row");
-
-        const frequencyDial = new Dial(FilterMinMax.frequency.min, FilterMinMax.frequency.max, filterData.Frequency, true, changeFrequencyCallback, filterData, 0, "Freq", "Hz");
-        const qDial = new Dial(FilterMinMax.Q.min, FilterMinMax.Q.max, filterData.Q, false, changeQCallback, filterData, 2, "Q", "");
-        const gainDial = new Dial(FilterMinMax.gain.min, FilterMinMax.gain.max, filterData.Gain, false, changeGainCallback, filterData, 0, "Gain", "dB");
-
-        const typeSelector = document.createElement("select");
-        typeSelector.classList.add("filter-type-selector");
-        constantFilterTypes.forEach(type => {
-            const option = document.createElement("option");
-            option.value = type;
-            option.textContent = type;
-            if (filterData.type === type) {
-                option.selected = true;
-            }
-            typeSelector.appendChild(option);
-        });
-
-        typeSelector.addEventListener("change", (event) => {
-            filterData.type = event.target.value;
-            changeTypeCallback(event.target.value, filterData);
-        });
-
-        const removeButton = document.createElement("button");
-        removeButton.classList.add("filter-button");
-        removeButton.classList.add("my-button");
-        removeButton.textContent = "Remove";
-        removeButton.addEventListener("click", (event) => {
-            container.remove();
-            OnRemoveFilter(filterData);
-        });
-
-        container.appendChild(frequencyDial.getContainer());
-        container.appendChild(qDial.getContainer());
-        container.appendChild(gainDial.getContainer());
-
-        container.appendChild(typeSelector);
-        container.appendChild(removeButton);
-
-        this.filterControlsContainer.appendChild(container);
-        return container;
+        const filterControls = new FilterControls(filterData, changeFrequencyCallback, changeQCallback, changeGainCallback, changeTypeCallback, OnRemoveFilter);
+        this.filterControlsContainer.appendChild(filterControls.getContainer());
+        return filterControls.getContainer();
     }
 }
 
