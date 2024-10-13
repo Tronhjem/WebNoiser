@@ -8,6 +8,17 @@
 body {
     background-color: var(--bgcolor) !important;
     margin: 0;
+    font-size: 0.9rem;
+}
+
+#about{
+    color: var(--contrastColor);
+    margin: 4rem;
+}
+
+#about h1{
+    font-size: 1.8rem;
+    padding: 2rem;
 }
 
 .my-button{
@@ -19,7 +30,6 @@ body {
     text-align: center;
     text-decoration: none;
     display: inline-block;
-    font-size: 16px;
     margin: 4px 2px;
     cursor: pointer;
     border-radius: 5px;
@@ -85,7 +95,7 @@ canvas {
     justify-content: center; /* Center horizontally */
     align-items: center; /* Center vertically if needed */
     height: 100%;
-    margin-top: 2rem;
+    margin-top: 2.5rem;
 }
 
 .filter-button {
@@ -101,7 +111,6 @@ canvas {
     text-align: center;
     text-decoration: none;
     display: inline-block;
-    font-size: 16px;
     margin: 4px 2px;
     cursor: pointer;
     border-radius: 5px;
@@ -149,7 +158,6 @@ canvas {
 }
 
 .dial-function-text {
-    font-size: 14px;
     text-align: center;
     width: 100%;
     position: absolute;
@@ -160,7 +168,6 @@ canvas {
 
 .dial-value-text {
     margin-top: 10px;
-    font-size: 14px;
     text-align: center;
     width: 100%;
     position: absolute;
