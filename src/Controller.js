@@ -135,21 +135,18 @@ class Controller {
         this.view.clearFilterControls();
 
         const keys = Object.keys(this.model.globalValueTree.filterData);
-        if (keys.length > 0) {
-            keys.forEach(key => {
-                const filterData = this.model.globalValueTree.filterData[key];
-                this.noiseSynth.addFilterRuntime(filterData);
+        keys.forEach(key => {
+            const filterData = this.model.globalValueTree.filterData[key];
+            this.noiseSynth.addFilterRuntime(filterData);
 
-                this.view.createFilterControls(filterData, 
-                    this.handleFilterFrequencyDialChange.bind(this), 
-                    this.handleFilterQDialChange.bind(this), 
-                    this.handleFilterGainDialChange.bind(this),
-                    this.handleFilterTypeChange.bind(this),
-                    this.handleRemoveFilter.bind(this)
-                );
-            });
-
-        }
+            this.view.createFilterControls(filterData, 
+                this.handleFilterFrequencyDialChange.bind(this), 
+                this.handleFilterQDialChange.bind(this), 
+                this.handleFilterGainDialChange.bind(this),
+                this.handleFilterTypeChange.bind(this),
+                this.handleRemoveFilter.bind(this)
+            );
+        });
 
         this.noiseSynth.updateAudioGraph();
         this.view.updateAllDials(this.model.globalValueTree);

@@ -20,6 +20,13 @@ class Model {
     loadValues() {
         this.globalValueTree = JSON.parse(localStorage.getItem("globalvalues"));
         if(!this.globalValueTree){
+            this.globalValueTree = {
+                biquadLowPass: { frequency: 14000.0 },
+                biquadHighPass: { frequency: 40.0 },
+                onePoleLowpass: { frequency: 500.0 },
+                volume: 0.2,
+                filterData: {}
+            };
             return;
         }
 
