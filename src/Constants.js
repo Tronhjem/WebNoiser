@@ -26,3 +26,5 @@ export const MyBiquadFilterTypes = {
     LOWPASS: 0,
     HIGHPASS: 1,
 }
+export const biquadLowPass = 15000.0;
+export const biquadHighPass = 40.0;

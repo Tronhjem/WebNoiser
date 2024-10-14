@@ -1,13 +1,14 @@
 
 class Model {
     constructor() {
+        this.biquadLowPass = 14000.0
+        this.biquadHighPass = 40.0;
         this.globalValueTree = {
-            biquadLowPass: { frequency: 14000.0 },
-            biquadHighPass: { frequency: 40.0 },
             onePoleLowpass: { frequency: 500.0 },
             volume: 0.2,
             filterData: {}
         };
+
     }
 
     saveValues() {
@@ -34,6 +35,12 @@ class Model {
 
         console.log("Loaded values: ");
         console.log(this.globalValueTree);
+    }
+
+    getSaveLink(){
+        const url = new URL(window.location);
+        url.searchParams.set("params", JSON.stringify(this.globalValueTree));
+        console.log(url.toString());
     }
 
     addFilter(freq, q, gain, filterType){

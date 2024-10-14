@@ -1,7 +1,7 @@
 import Model from "./Model.js";
 import View from "./View.js";
 import NoiseSynth from "./NoiseSynth.js";
-import {dialMax, FilterMinMax} from "./Constants.js";
+import {dialMax, FilterMinMax, biquadLowPass, biquadHighPass} from "./Constants.js";
 
 class Controller {
     constructor() {
@@ -17,6 +17,13 @@ class Controller {
 
         this.view.createVolumeControl(this.handleVolumeChange.bind(this), this.model.globalValueTree.volume);
         this.view.createOnePoleControl(this.handleOnePoleChange.bind(this), this.model.globalValueTree.onePoleLowpass.frequency);
+
+
+        this.params = new URLSearchParams(window.location.search);
+        if(this.params.has("params")){
+            this.model.globalValueTree = JSON.parse(this.params.get("params"));
+            this.initFromPreset();
+        }
     }
 
     async startAudio(){
@@ -24,8 +31,8 @@ class Controller {
         {
             await this.noiseSynth.initialize(this.model.globalValueTree.filterData);
             this.noiseSynth.setVolume(this.model.globalValueTree.volume);
-            this.noiseSynth.setBiqadLowpassFilterFrequency(this.model.globalValueTree.biquadLowPass.frequency);
-            this.noiseSynth.setBiqadHighpassFilterFrequency(this.model.globalValueTree.biquadHighPass.frequency);
+            this.noiseSynth.setBiqadLowpassFilterFrequency(biquadLowPass);
+            this.noiseSynth.setBiqadHighpassFilterFrequency(biquadHighPass);
             this.noiseSynth.setOnePoleFrequency(this.model.globalValueTree.onePoleLowpass.frequency);
         }
     }
@@ -34,11 +41,6 @@ class Controller {
         const volume = value / dialMax;
         this.model.updateVolume(volume);
         this.noiseSynth.setVolume(volume);
-    }
-
-    handleButterworthChange(value) {
-        this.model.updateButterworthFrequency(value);
-        this.noiseSynth.setBiqadLowpassFilterFrequency(value);
     }
 
     handleOnePoleChange(value) {
@@ -151,6 +153,28 @@ class Controller {
         this.noiseSynth.updateAudioGraph();
         this.view.updateAllDials(this.model.globalValueTree);
     }
+
+
+    initFromPreset() {
+        const keys = Object.keys(this.model.globalValueTree.filterData);
+        keys.forEach(key => {
+            const filterData = this.model.globalValueTree.filterData[key];
+            this.noiseSynth.addFilterRuntime(filterData);
+
+            this.view.createFilterControls(filterData, 
+                this.handleFilterFrequencyDialChange.bind(this), 
+                this.handleFilterQDialChange.bind(this), 
+                this.handleFilterGainDialChange.bind(this),
+                this.handleFilterTypeChange.bind(this),
+                this.handleRemoveFilter.bind(this)
+            );
+        });
+
+        this.noiseSynth.updateAudioGraph();
+        this.view.updateAllDials(this.model.globalValueTree);
+    }
+
+
 }
 
 export default Controller;
