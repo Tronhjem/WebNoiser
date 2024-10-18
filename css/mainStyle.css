@@ -82,6 +82,14 @@ canvas {
     margin-top: 1rem;
 }
 
+#advanced-controls{
+    display: flex;
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically if needed */
+    height: 100%;
+    margin-top: 1rem;
+}
+
 #core-controls{
     display: flex;
     justify-content: center; /* Center horizontally */
