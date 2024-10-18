@@ -132,6 +132,19 @@ canvas {
     padding: 5px 20px;
 }
 
+.selector{
+    background-color: var(--midColor);
+    color: var(--contrastColor);
+    border: none;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 5px;
+    padding: 5px 20px;
+}
+
 .dial-container {
     display: inline-block;
     position: relative;

@@ -1,6 +1,7 @@
 import {constantFilterTypes, FilterMinMax, dialMin, dialMax} from "./Constants.js"
 import Dial from "./Dial.js";
 import FilterControls from "./FilterControls.js";
+import Selector from "./Selector.js";
 
 class View {
     constructor() {
@@ -12,6 +13,7 @@ class View {
         this.filterControlsContainer = document.getElementById("filter-controls-container");
         this.coreControls = document.getElementById("core-controls");
         this.easyControls = document.getElementById("easy-controls");
+        this.presetControls = document.getElementById("preset-controls");
 
         this.volumeDial = null;
         this.onePoleDial = null;
@@ -132,6 +134,10 @@ class View {
         return filterControls.getContainer();
     }
 
+    createPresetSelector(changePresetCallback, presetNames, initValue){
+        const selector = new Selector(presetNames, initValue, changePresetCallback);
+        this.presetControls.appendChild(selector.getContainer());
+    }
 }
 
 export default View;

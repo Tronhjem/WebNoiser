@@ -28,6 +28,8 @@ class Controller {
             this.model.data = JSON.parse(this.params.get(saveParamsName));
             this.initFromPreset();
         }
+
+        this.view.createPresetSelector(this.handlePresetChange.bind(this), ['1', '2', '3'], '1');
     }
 
     async startAudio(){
@@ -164,6 +166,10 @@ class Controller {
     handleRemoveFilter(filterData) {
         this.noiseSynth.removeFilter(filterData);
         this.model.removeFilter(filterData);
+    }
+
+    handlePresetChange(value, data) {
+        console.log(value);
     }
 
     saveAllValues() {
