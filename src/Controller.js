@@ -18,7 +18,6 @@ class Controller {
         this.view.createVolumeControl(this.handleVolumeChange.bind(this), this.model.globalValueTree.volume);
         this.view.createOnePoleControl(this.handleOnePoleChange.bind(this), this.model.globalValueTree.onePoleLowpass.frequency);
 
-
         this.params = new URLSearchParams(window.location.search);
         if(this.params.has("params")){
             this.model.globalValueTree = JSON.parse(this.params.get("params"));
