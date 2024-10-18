@@ -3,9 +3,13 @@ import { saveParamsName } from "./Constants.js";
 class Model {
     constructor() {
         this.data = {
-            lpf1p: { f: 500.0 },
             vol: 0.2,
-            fd: {}
+            lpf1p: { f: 500.0 },
+            lo: {g: 0.0},
+            md: {g: 0.0},
+            hi: {g: 0.0},
+            fd: {
+            }
         };
 
     }

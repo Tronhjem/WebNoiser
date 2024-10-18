@@ -89,6 +89,13 @@ canvas {
     height: 100%;
     margin-top: 1rem;
 }
+#easy-controls{
+    display: flex;
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically if needed */
+    height: 100%;
+    margin-top: 1rem;
+}
 
 .filter-controls{
     display: flex;

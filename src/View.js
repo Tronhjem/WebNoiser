@@ -11,6 +11,7 @@ class View {
         this.clearLocalStorageButton = document.getElementById("clear-local-storage");
         this.filterControlsContainer = document.getElementById("filter-controls-container");
         this.coreControls = document.getElementById("core-controls");
+        this.easyControls = document.getElementById("easy-controls");
 
         this.volumeDial = null;
         this.onePoleDial = null;
@@ -77,11 +78,45 @@ class View {
         this.coreControls.appendChild(container);
     }
 
+    createLoControl(callback, initValue){
+        const container = document.createElement("div");
+        container.classList.add("lowShelf-control");
+        container.classList.add("easy-control");
+
+        this.loDial = new Dial(FilterMinMax.gain.min, FilterMinMax.gain.max, initValue, false, callback, null, 2, "Low", "dB");
+
+        container.appendChild(this.loDial.getContainer());
+        this.easyControls.appendChild(container);
+    }
+
+    createMidControl(callback, initValue){
+        const container = document.createElement("div");
+        container.classList.add("mid-control");
+        container.classList.add("easy-control");
+
+        this.midDial = new Dial(FilterMinMax.gain.min, FilterMinMax.gain.max, initValue, false, callback, null, 2, "Mid", "dB");
+
+        container.appendChild(this.midDial.getContainer());
+        this.easyControls.appendChild(container);
+    }
+
+    createHiControl(callback, initValue){
+        const container = document.createElement("div");
+        container.classList.add("hi-control");
+        container.classList.add("easy-control");
+
+        this.hiDial = new Dial(FilterMinMax.gain.min, FilterMinMax.gain.max, initValue, false, callback, null, 2, "High", "dB");
+
+        container.appendChild(this.hiDial.getContainer());
+        this.easyControls.appendChild(container);
+    }
+
     createFilterControls(filterData, changeFrequencyCallback, changeQCallback, changeGainCallback, changeTypeCallback, OnRemoveFilter) {
         const filterControls = new FilterControls(filterData, changeFrequencyCallback, changeQCallback, changeGainCallback, changeTypeCallback, OnRemoveFilter);
         this.filterControlsContainer.appendChild(filterControls.getContainer());
         return filterControls.getContainer();
     }
+
 }
 
 export default View;

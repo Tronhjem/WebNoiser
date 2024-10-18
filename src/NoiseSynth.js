@@ -1,4 +1,4 @@
-import {FilterMinMax, dialMin, dialMax, MyBiquadFilterTypes} from "./Constants.js"
+import {MyBiquadFilterTypes, lowShelfFreq, midFreq, highShelfFreq} from "./Constants.js"
 
 class NoiseSynth{
     constructor(){
@@ -8,15 +8,19 @@ class NoiseSynth{
         this.biquadLowPassFilter = null;
         this.biquadHighPassFilter = null;
         this.onePoleLowpass = null;
+        this.low = null;
+        this.mid = null;
+        this.high = null;
+        
         this.analyser = null;
-        this.gainNode = null;
-        this.dataArray = null;
         this.bufferLength = 0;
         this.filters = {};
         this.isInitialized = false;
+
+        this.dataArray = null;
     }
 
-    async initialize(filterList){
+    async initialize(data){
         this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
         this.gainNode = this.audioContext.createGain();
 
@@ -38,8 +42,12 @@ class NoiseSynth{
 
         this.biquadHighPassFilter.parameters.get("filterType").setValueAtTime(MyBiquadFilterTypes.HIGHPASS, this.audioContext.currentTime);
 
-        Object.keys(filterList).forEach(key => {
-            const filter = filterList[key];
+        this.low = this.createFilter({T: 'lowshelf', F: lowShelfFreq, Q: 1, G: data.lo.g});
+        this.mid = this.createFilter({T: 'peaking', F: midFreq, Q: 0.5, G: data.md.g});
+        this.high = this.createFilter({T: 'highshelf', F: highShelfFreq, Q: 1, G: data.hi.g});
+
+        Object.keys(data.fd).forEach(key => {
+            const filter = data.fd[key];
             this.addFilterOffline(filter);
         });
 
@@ -143,6 +151,30 @@ class NoiseSynth{
         }
     }
 
+    setLoShelfGain(value){
+        if (!this.isInitialized) {
+            return;
+        }
+
+        this.low['gain'].setValueAtTime(value, this.audioContext.currentTime);
+    }
+
+    setMidGain(value){
+        if (!this.isInitialized) {
+            return;
+        }
+
+        this.mid['gain'].setValueAtTime(value, this.audioContext.currentTime);
+    }
+
+    setHiShelfGain(value){
+        if (!this.isInitialized) {
+            return;
+        }
+
+        this.high['gain'].setValueAtTime(value, this.audioContext.currentTime);
+    }
+
     connectAll() {
         if (!this.isInitialized) {
             return;
@@ -157,7 +189,10 @@ class NoiseSynth{
         });
 
         previousNode.connect(this.onePoleLowpass);
-        this.onePoleLowpass.connect(this.biquadHighPassFilter);
+        this.onePoleLowpass.connect(this.high);
+        this.high.connect(this.low);
+        this.low.connect(this.mid);
+        this.mid.connect(this.biquadLowPassFilter);
         this.biquadHighPassFilter.connect(this.biquadLowPassFilter);
         this.biquadLowPassFilter.connect(this.gainNode);
         this.gainNode.connect(this.audioContext.destination);
@@ -173,6 +208,10 @@ class NoiseSynth{
         this.biquadLowPassFilter.disconnect();
         this.biquadHighPassFilter.disconnect();
         this.gainNode.disconnect();
+
+        this.high.disconnect();
+        this.low.disconnect();
+        this.mid.disconnect();
 
         Object.keys(this.filters).forEach(key => {
             const filter = this.filters[key];

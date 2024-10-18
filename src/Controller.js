@@ -1,7 +1,7 @@
 import Model from "./Model.js";
 import View from "./View.js";
 import NoiseSynth from "./NoiseSynth.js";
-import {dialMax, FilterMinMax, biquadLowPass, biquadHighPass, saveParamsName} from "./Constants.js";
+import {dialMax, FilterMinMax, biquadLowPass, biquadHighPass, saveParamsName, lowShelfFreq, midFreq, highShelfFreq} from "./Constants.js";
 
 class Controller {
     constructor() {
@@ -18,6 +18,10 @@ class Controller {
         this.view.createVolumeControl(this.handleVolumeChange.bind(this), this.model.data.vol);
         this.view.createOnePoleControl(this.handleOnePoleChange.bind(this), this.model.data.lpf1p.f);
 
+        this.view.createLoControl(this.handleLoControl.bind(this), this.model.data.lo.g);
+        this.view.createMidControl(this.handleMidControl.bind(this), this.model.data.md.g);
+        this.view.createHiControl(this.handleHiControl.bind(this), this.model.data.hi.g);
+
         this.params = new URLSearchParams(window.location.search);
         if(this.params.has(saveParamsName)){
             this.model.data = JSON.parse(this.params.get(saveParamsName));
@@ -28,7 +32,7 @@ class Controller {
     async startAudio(){
         if (!this.noiseSynth.isInitialized) 
         {
-            await this.noiseSynth.initialize(this.model.data.fd);
+            await this.noiseSynth.initialize(this.model.data);
             this.noiseSynth.setVolume(this.model.data.vol);
             this.noiseSynth.setBiqadLowpassFilterFrequency(biquadLowPass);
             this.noiseSynth.setBiqadHighpassFilterFrequency(biquadHighPass);
@@ -49,6 +53,31 @@ class Controller {
         const frequency = Math.pow(10, (value / dialMax) * (Math.log10(max) - Math.log10(min)) + Math.log10(min));
         this.model.updateOnePoleFrequency(frequency);
         this.noiseSynth.setOnePoleFrequency(frequency);
+    }
+
+    handleLoControl(value) {
+        const min = FilterMinMax.gain.min;
+        const max = FilterMinMax.gain.max;
+        const setValue = (value / dialMax) * (max - min) + min;
+
+        this.model.data.lo.g = setValue;
+        this.noiseSynth.setLoShelfGain(setValue);
+    }
+
+    handleMidControl(value) {
+        const min = FilterMinMax.gain.min;
+        const max = FilterMinMax.gain.max;
+        const setValue = (value / dialMax) * (max - min) + min;
+        this.model.data.md.g = setValue;
+        this.noiseSynth.setMidGain(setValue);
+    }
+
+    handleHiControl(value) {   
+        const min = FilterMinMax.gain.min;
+        const max = FilterMinMax.gain.max;
+        const setValue = (value / dialMax) * (max - min) + min;
+        this.model.data.hi.g = setValue;
+        this.noiseSynth.setHiShelfGain(setValue);
     }
 
     handlePlayButton() {
@@ -172,8 +201,6 @@ class Controller {
         this.noiseSynth.updateAudioGraph();
         this.view.updateAllDials(this.model.data);
     }
-
-
 }
 
 export default Controller;
