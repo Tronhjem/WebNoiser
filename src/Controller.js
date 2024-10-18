@@ -23,13 +23,16 @@ class Controller {
         this.view.createMidControl(this.handleMidControl.bind(this), this.model.getCurrentData().md);
         this.view.createHiControl(this.handleHiControl.bind(this), this.model.getCurrentData().hi);
 
-        this.params = new URLSearchParams(window.location.search);
-        if(this.params.has(saveParamsName)){
-            this.model.data['From Link'] = JSON.parse(this.params.get(saveParamsName));
-        }
-
         this.view.createPresetSelector(this.handlePresetChange.bind(this), this.model.data.presets);
         this.loadAllValues();
+
+        this.params = new URLSearchParams(window.location.search);
+        if(this.params.has(saveParamsName)){
+            const data = JSON.parse(this.params.get(saveParamsName));
+            this.setNewPreset('From Link');
+            this.model.data.presets['From Link'] = {...data};
+            this.loadAllValues();
+        }
     }
 
     async startAudio(){
@@ -158,9 +161,16 @@ class Controller {
     handleNewPreset()
     {
         const name = Date.now();
-        this.model.newPreset(name);
+        this.setNewPreset(name);
+    }
+
+    setNewPreset(name) {
+        if(!this.model.data.presets[name]) {
+            this.model.newPreset(name);
+            this.view.addNewPresetName(name);
+        }
+        
         this.model.setCurrentPreset(name);
-        this.view.addNewPresetName(name);
         this.view.setPresetSelectorName(name);
     }
 
@@ -189,7 +199,6 @@ class Controller {
 
     loadAllValues() {
         this.noiseSynth.clear();
-        // this.model.loadValues();
         this.view.clearFilterControls();
 
         const keys = Object.keys(this.model.getCurrentData().fd);
@@ -208,26 +217,6 @@ class Controller {
 
         this.noiseSynth.updateAudioGraph();
         this.view.updateAllDials(this.model.getCurrentData());
-    }
-
-
-    initFromPreset() {
-        const keys = Object.keys(this.model.getCurrentData().fd);
-        keys.forEach(key => {
-            const filterData = this.model.getCurrentData().fd[key];
-            this.noiseSynth.addFilterRuntime(filterData);
-
-            this.view.createFilterControls(filterData, 
-                this.handleFilterFrequencyDialChange.bind(this), 
-                this.handleFilterQDialChange.bind(this), 
-                this.handleFilterGainDialChange.bind(this),
-                this.handleFilterTypeChange.bind(this),
-                this.handleRemoveFilter.bind(this)
-            );
-        });
-
-        this.noiseSynth.updateAudioGraph();
-        this.view.updateAllDials(this.model.data);
     }
 }
 
