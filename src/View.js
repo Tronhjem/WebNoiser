@@ -16,9 +16,9 @@ class View {
         this.onePoleDial = null;
     }
 
-    updateAllDials(globalValueTree){
-        this.volumeDial.setDial(globalValueTree.volume);
-        this.onePoleDial.setDial(globalValueTree.onePoleLowpass.frequency);
+    updateAllDials(data){
+        this.volumeDial.setDial(data.vol);
+        this.onePoleDial.setDial(data.lpf1p.f);
     }
 
     bindPlayButton(handler) {

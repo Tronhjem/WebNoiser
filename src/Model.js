@@ -1,32 +1,28 @@
 
 class Model {
     constructor() {
-        this.biquadLowPass = 14000.0
-        this.biquadHighPass = 40.0;
-        this.globalValueTree = {
-            onePoleLowpass: { frequency: 500.0 },
-            volume: 0.2,
-            filterData: {}
+        this.data = {
+            lpf1p: { f: 500.0 },
+            vol: 0.2,
+            fd: {}
         };
 
     }
 
     saveValues() {
-        localStorage.setItem("globalvalues", JSON.stringify(this.globalValueTree));
+        localStorage.setItem("globalvalues", JSON.stringify(this.data));
         
         console.log("Saved values: ");
-        console.log(this.globalValueTree);
+        console.log(this.data);
     }
 
     loadValues() {
-        this.globalValueTree = JSON.parse(localStorage.getItem("globalvalues"));
-        if(!this.globalValueTree){
-            this.globalValueTree = {
-                biquadLowPass: { frequency: 14000.0 },
-                biquadHighPass: { frequency: 40.0 },
-                onePoleLowpass: { frequency: 500.0 },
-                volume: 0.2,
-                filterData: {}
+        this.data = JSON.parse(localStorage.getItem("globalvalues"));
+        if(!this.data){
+            this.data = {
+                lpf1p: { f: 500.0 },
+                vol: 0.2,
+                fd: {}
             };
             return;
         }
@@ -34,35 +30,35 @@ class Model {
         this.filters = [];
 
         console.log("Loaded values: ");
-        console.log(this.globalValueTree);
+        console.log(this.data);
     }
 
     getSaveLink(){
         const url = new URL(window.location);
-        url.searchParams.set("params", JSON.stringify(this.globalValueTree));
+        url.searchParams.set("params", JSON.stringify(this.data));
         console.log(url.toString());
     }
 
     addFilter(freq, q, gain, filterType){
         const filterDataEntry = {id: Date.now(), Frequency: freq, Q: q, Gain: gain, FilterType: filterType};
-        this.globalValueTree.filterData[filterDataEntry.id] = filterDataEntry;
+        this.data.fd[filterDataEntry.id] = filterDataEntry;
         return filterDataEntry;
     }
 
     removeFilter(filterData){
-        delete this.globalValueTree.filterData[filterData.id]
+        delete this.data.fd[filterData.id]
     }
 
     updateVolume(value) {
-        this.globalValueTree.volume = value;
+        this.data.vol = value;
     }
 
     updateButterworthFrequency(value) {
-        this.globalValueTree.biquadLowPass.frequency = value;
+        this.data.biquadLowPass.frequency = value;
     }
 
     updateOnePoleFrequency(value) {
-        this.globalValueTree.onePoleLowpass.frequency = value;
+        this.data.lpf1p.f = value;
     }
 
     clearLocalStorage() {
