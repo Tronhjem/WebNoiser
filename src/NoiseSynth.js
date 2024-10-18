@@ -11,7 +11,7 @@ class NoiseSynth{
         this.low = null;
         this.mid = null;
         this.high = null;
-        
+        this.speechFilters = [];
         this.analyser = null;
         this.bufferLength = 0;
         this.filters = {};
@@ -42,9 +42,14 @@ class NoiseSynth{
 
         this.biquadHighPassFilter.parameters.get("filterType").setValueAtTime(MyBiquadFilterTypes.HIGHPASS, this.audioContext.currentTime);
 
-        this.low = this.createFilter({T: 'lowshelf', F: lowShelfFreq, Q: 1, G: data.lo.g});
-        this.mid = this.createFilter({T: 'peaking', F: midFreq, Q: 0.5, G: data.md.g});
-        this.high = this.createFilter({T: 'highshelf', F: highShelfFreq, Q: 1, G: data.hi.g});
+        this.low = this.createFilter({T: 'lowshelf', F: lowShelfFreq, Q: 1, G: data.lo});
+        this.mid = this.createFilter({T: 'peaking', F: midFreq, Q: 0.5, G: data.md});
+        this.high = this.createFilter({T: 'highshelf', F: highShelfFreq, Q: 1, G: data.hi});
+
+        // Speech Filters
+        this.speechFilters.push(this.createFilter({T: 'peaking', F: 300, Q: 1.0, G: 0}));
+        this.speechFilters.push(this.createFilter({T: 'peaking', F: 800, Q: 1.0, G: 0}));
+        this.speechFilters.push(this.createFilter({T: 'peaking', F: 2000, Q: 1.0, G: 0}));
 
         Object.keys(data.fd).forEach(key => {
             const filter = data.fd[key];
@@ -174,6 +179,16 @@ class NoiseSynth{
 
         this.high['gain'].setValueAtTime(value, this.audioContext.currentTime);
     }
+    
+    setSpeechMaskGain(value){
+        if (!this.isInitialized) {
+            return;
+        }
+
+        for(let i = 0; i < this.speechFilters.length; i++){
+            this.speechFilters[i]['gain'].setValueAtTime(value, this.audioContext.currentTime);
+        }
+    }
 
     connectAll() {
         if (!this.isInitialized) {
@@ -187,6 +202,13 @@ class NoiseSynth{
             previousNode.connect(filter);
             previousNode = filter;
         });
+
+
+        for (let i = 0; i < this.speechFilters.length; i++){
+            const speechFilter = this.speechFilters[i];
+            previousNode.connect(speechFilter);
+            previousNode = speechFilter;
+        }
 
         previousNode.connect(this.onePoleLowpass);
         this.onePoleLowpass.connect(this.high);
@@ -212,6 +234,10 @@ class NoiseSynth{
         this.high.disconnect();
         this.low.disconnect();
         this.mid.disconnect();
+
+        for (let i = 0; i < this.speechFilters.length; i++){
+            this.speechFilters[i].disconnect();
+        }
 
         Object.keys(this.filters).forEach(key => {
             const filter = this.filters[key];

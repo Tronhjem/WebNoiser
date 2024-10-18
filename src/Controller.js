@@ -1,7 +1,7 @@
 import Model from "./Model.js";
 import View from "./View.js";
 import NoiseSynth from "./NoiseSynth.js";
-import {dialMax, FilterMinMax, biquadLowPass, biquadHighPass, saveParamsName, lowShelfFreq, midFreq, highShelfFreq} from "./Constants.js";
+import {dialMax, FilterMinMax, biquadLowPass, biquadHighPass, saveParamsName} from "./Constants.js";
 
 class Controller {
     constructor() {
@@ -16,11 +16,12 @@ class Controller {
         this.view.bindClearLocalStorageButton(this.handleClearLocalStorageButton.bind(this));
 
         this.view.createVolumeControl(this.handleVolumeChange.bind(this), this.model.data.vol);
-        this.view.createOnePoleControl(this.handleOnePoleChange.bind(this), this.model.data.lpf1p.f);
+        this.view.createOnePoleControl(this.handleOnePoleChange.bind(this), this.model.data.lpf1p);
+        this.view.createSpeechMaskControl(this.handleSpeechMaskChange.bind(this), this.model.data.sMask);
 
-        this.view.createLoControl(this.handleLoControl.bind(this), this.model.data.lo.g);
-        this.view.createMidControl(this.handleMidControl.bind(this), this.model.data.md.g);
-        this.view.createHiControl(this.handleHiControl.bind(this), this.model.data.hi.g);
+        this.view.createLoControl(this.handleLoControl.bind(this), this.model.data.lo);
+        this.view.createMidControl(this.handleMidControl.bind(this), this.model.data.md);
+        this.view.createHiControl(this.handleHiControl.bind(this), this.model.data.hi);
 
         this.params = new URLSearchParams(window.location.search);
         if(this.params.has(saveParamsName)){
@@ -36,7 +37,8 @@ class Controller {
             this.noiseSynth.setVolume(this.model.data.vol);
             this.noiseSynth.setBiqadLowpassFilterFrequency(biquadLowPass);
             this.noiseSynth.setBiqadHighpassFilterFrequency(biquadHighPass);
-            this.noiseSynth.setOnePoleFrequency(this.model.data.lpf1p.f);
+            this.noiseSynth.setOnePoleFrequency(this.model.data.lpf1p);
+            this.noiseSynth.setSpeechMaskGain(this.model.data.sMask);
         }
     }
 
@@ -54,13 +56,22 @@ class Controller {
         this.model.updateOnePoleFrequency(frequency);
         this.noiseSynth.setOnePoleFrequency(frequency);
     }
+    
+    handleSpeechMaskChange(value) {
+        const min = FilterMinMax.gain.min;
+        const max = FilterMinMax.gain.max;
+        const setValue = (value / dialMax) * (max - min) + min;
+
+        this.model.data.sMask = setValue;
+        this.noiseSynth.setSpeechMaskGain(setValue);
+    }
 
     handleLoControl(value) {
         const min = FilterMinMax.gain.min;
         const max = FilterMinMax.gain.max;
         const setValue = (value / dialMax) * (max - min) + min;
 
-        this.model.data.lo.g = setValue;
+        this.model.data.lo = setValue;
         this.noiseSynth.setLoShelfGain(setValue);
     }
 
@@ -68,7 +79,7 @@ class Controller {
         const min = FilterMinMax.gain.min;
         const max = FilterMinMax.gain.max;
         const setValue = (value / dialMax) * (max - min) + min;
-        this.model.data.md.g = setValue;
+        this.model.data.md = setValue;
         this.noiseSynth.setMidGain(setValue);
     }
 
@@ -76,7 +87,7 @@ class Controller {
         const min = FilterMinMax.gain.min;
         const max = FilterMinMax.gain.max;
         const setValue = (value / dialMax) * (max - min) + min;
-        this.model.data.hi.g = setValue;
+        this.model.data.hi = setValue;
         this.noiseSynth.setHiShelfGain(setValue);
     }
 

@@ -19,7 +19,12 @@ class View {
 
     updateAllDials(data){
         this.volumeDial.setDial(data.vol);
-        this.onePoleDial.setDial(data.lpf1p.f);
+        this.onePoleDial.setDial(data.lpf1p);
+        this.speechMaskDial.setDial(data.sMask);
+
+        this.loDial.setDial(data.lo);
+        this.midDial.setDial(data.md);
+        this.hiDial.setDial(data.hi);
     }
 
     bindPlayButton(handler) {
@@ -109,6 +114,16 @@ class View {
 
         container.appendChild(this.hiDial.getContainer());
         this.easyControls.appendChild(container);
+    }
+
+    createSpeechMaskControl(callback, initValue){
+        const container = document.createElement("div");
+        container.classList.add("speech-mask-control");
+
+        this.speechMaskDial = new Dial(FilterMinMax.gain.min, FilterMinMax.gain.max, initValue, false, callback, null, 2, "Speech Mask", "dB");
+
+        container.appendChild(this.speechMaskDial.getContainer());
+        this.coreControls.appendChild(container);
     }
 
     createFilterControls(filterData, changeFrequencyCallback, changeQCallback, changeGainCallback, changeTypeCallback, OnRemoveFilter) {

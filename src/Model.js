@@ -1,17 +1,8 @@
-import { saveParamsName } from "./Constants.js";
+import { saveParamsName, initData } from "./Constants.js";
 
 class Model {
     constructor() {
-        this.data = {
-            vol: 0.2,
-            lpf1p: { f: 500.0 },
-            lo: {g: 0.0},
-            md: {g: 0.0},
-            hi: {g: 0.0},
-            fd: {
-            }
-        };
-
+        this.data = {...initData};
     }
 
     saveValues() {
@@ -26,11 +17,8 @@ class Model {
     loadValues() {
         this.data = JSON.parse(localStorage.getItem("data"));
         if(!this.data){
-            this.data = {
-                lpf1p: { f: 500.0 },
-                vol: 0.2,
-                fd: {}
-            };
+            this.data = { ...initData };
+
             return;
         }
 
@@ -61,7 +49,7 @@ class Model {
     }
 
     updateOnePoleFrequency(value) {
-        this.data.lpf1p.f = value;
+        this.data.lpf1p = value;
     }
 
     clearLocalStorage() {

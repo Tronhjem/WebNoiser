@@ -35,3 +35,13 @@ export const midFreq = 1000.0;
 export const highShelfFreq = 5000.0;
 
 export const saveParamsName = 'p';
+export const initData = {
+    vol: 0.2,
+    lpf1p: 500.0,
+    sMask: 0,
+    lo: 0.0,
+    md: 0.0,
+    hi: 0.0,
+    fd: {
+    }
+};
