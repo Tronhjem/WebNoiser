@@ -50,6 +50,7 @@ class Dial {
 
         this.dial.addEventListener("mousedown", this.mouseDown.bind(this));
         this.dial.addEventListener("touchstart", this.touchStart.bind(this));
+        this.dial.addEventListener("dblclick", this.doubleClick.bind(this));
 
         document.addEventListener("mousemove", this.mouseMove.bind(this));
         document.addEventListener("touchmove", this.touchMove.bind(this));
@@ -58,6 +59,10 @@ class Dial {
         document.addEventListener("touchend", this.mouseUp.bind(this));
 
         this.updateDialOnDrag();
+    }
+
+    doubleClick(){
+        this.setDial(this.initValue);
     }
 
     touchStart(event){
