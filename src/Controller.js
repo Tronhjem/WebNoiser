@@ -12,35 +12,35 @@ class Controller {
         this.view.bindPlayButton(this.handlePlayButton.bind(this));
         this.view.bindAddFilterButton(this.handleAddFilterButton.bind(this));
         this.view.bindSaveButton(this.handleSaveButton.bind(this));
-        this.view.bindLoadButton(this.handleLoadButton.bind(this));
+        this.view.bindNewPresetButton(this.handleNewPreset.bind(this));
         this.view.bindClearLocalStorageButton(this.handleClearLocalStorageButton.bind(this));
 
-        this.view.createVolumeControl(this.handleVolumeChange.bind(this), this.model.data.vol);
-        this.view.createOnePoleControl(this.handleOnePoleChange.bind(this), this.model.data.lpf1p);
-        this.view.createSpeechMaskControl(this.handleSpeechMaskChange.bind(this), this.model.data.sMask);
+        this.view.createVolumeControl(this.handleVolumeChange.bind(this), this.model.getCurrentData().vol);
+        this.view.createOnePoleControl(this.handleOnePoleChange.bind(this), this.model.getCurrentData().lpf1p);
+        this.view.createSpeechMaskControl(this.handleSpeechMaskChange.bind(this), this.model.getCurrentData().sMask);
 
-        this.view.createLoControl(this.handleLoControl.bind(this), this.model.data.lo);
-        this.view.createMidControl(this.handleMidControl.bind(this), this.model.data.md);
-        this.view.createHiControl(this.handleHiControl.bind(this), this.model.data.hi);
+        this.view.createLoControl(this.handleLoControl.bind(this), this.model.getCurrentData().lo);
+        this.view.createMidControl(this.handleMidControl.bind(this), this.model.getCurrentData().md);
+        this.view.createHiControl(this.handleHiControl.bind(this), this.model.getCurrentData().hi);
 
         this.params = new URLSearchParams(window.location.search);
         if(this.params.has(saveParamsName)){
-            this.model.data = JSON.parse(this.params.get(saveParamsName));
-            this.initFromPreset();
+            this.model.data['From Link'] = JSON.parse(this.params.get(saveParamsName));
         }
 
-        this.view.createPresetSelector(this.handlePresetChange.bind(this), ['1', '2', '3'], '1');
+        this.view.createPresetSelector(this.handlePresetChange.bind(this), this.model.data.presets);
+        this.loadAllValues();
     }
 
     async startAudio(){
         if (!this.noiseSynth.isInitialized) 
         {
-            await this.noiseSynth.initialize(this.model.data);
-            this.noiseSynth.setVolume(this.model.data.vol);
+            await this.noiseSynth.initialize(this.model.getCurrentData());
+            this.noiseSynth.setVolume(this.model.getCurrentData().vol);
             this.noiseSynth.setBiqadLowpassFilterFrequency(biquadLowPass);
             this.noiseSynth.setBiqadHighpassFilterFrequency(biquadHighPass);
-            this.noiseSynth.setOnePoleFrequency(this.model.data.lpf1p);
-            this.noiseSynth.setSpeechMaskGain(this.model.data.sMask);
+            this.noiseSynth.setOnePoleFrequency(this.model.getCurrentData().lpf1p);
+            this.noiseSynth.setSpeechMaskGain(this.model.getCurrentData().sMask);
         }
     }
 
@@ -64,7 +64,7 @@ class Controller {
         const max = FilterMinMax.gain.max;
         const setValue = (value / dialMax) * (max - min) + min;
 
-        this.model.data.sMask = setValue;
+        this.model.getCurrentData().sMask = setValue;
         this.noiseSynth.setSpeechMaskGain(setValue);
     }
 
@@ -73,7 +73,7 @@ class Controller {
         const max = FilterMinMax.gain.max;
         const setValue = (value / dialMax) * (max - min) + min;
 
-        this.model.data.lo = setValue;
+        this.model.getCurrentData().lo = setValue;
         this.noiseSynth.setLoShelfGain(setValue);
     }
 
@@ -81,7 +81,7 @@ class Controller {
         const min = FilterMinMax.gain.min;
         const max = FilterMinMax.gain.max;
         const setValue = (value / dialMax) * (max - min) + min;
-        this.model.data.md = setValue;
+        this.model.getCurrentData().md = setValue;
         this.noiseSynth.setMidGain(setValue);
     }
 
@@ -89,7 +89,7 @@ class Controller {
         const min = FilterMinMax.gain.min;
         const max = FilterMinMax.gain.max;
         const setValue = (value / dialMax) * (max - min) + min;
-        this.model.data.hi = setValue;
+        this.model.getCurrentData().hi = setValue;
         this.noiseSynth.setHiShelfGain(setValue);
     }
 
@@ -125,7 +125,7 @@ class Controller {
         const setValue = Math.pow(10, (value / dialMax) * (Math.log10(max) - Math.log10(min)) + Math.log10(min));
 
         this.noiseSynth.updateFilter(setValue, filterData, "frequency", true);
-        this.model.data.fd[filterData.id].F = setValue;
+        this.model.getCurrentData().fd[filterData.id].F = setValue;
     }
 
     handleFilterQDialChange(value, filterData) {
@@ -134,7 +134,7 @@ class Controller {
         const setValue = (value / dialMax) * (max - min) + min;
 
         this.noiseSynth.updateFilter(setValue, filterData, "Q", false);
-        this.model.data.fd[filterData.id].Q = setValue;
+        this.model.getCurrentData().fd[filterData.id].Q = setValue;
     }
 
     handleFilterGainDialChange(value, filterData) {
@@ -143,16 +143,25 @@ class Controller {
         const setValue = (value / dialMax) * (max - min) + min;
 
         this.noiseSynth.updateFilter(setValue, filterData, "gain", false);
-        this.model.data.fd[filterData.id].G = setValue;
+        this.model.getCurrentData().fd[filterData.id].G = setValue;
     }   
 
     handleFilterTypeChange(value, filterData) {
         this.noiseSynth.updateFilter(value, filterData, "filterType", false);
-        this.model.data.fd[filterData.id].T = value;
+        this.model.getCurrentData().fd[filterData.id].T = value;
     }   
 
     handleSaveButton() {
         this.saveAllValues();
+    }
+
+    handleNewPreset()
+    {
+        const name = Date.now();
+        this.model.newPreset(name);
+        this.model.setCurrentPreset(name);
+        this.view.addNewPresetName(name);
+        this.view.setPresetSelectorName(name);
     }
 
     handleLoadButton() {
@@ -169,6 +178,8 @@ class Controller {
     }
 
     handlePresetChange(value, data) {
+        this.model.setCurrentPreset(value);
+        this.loadAllValues();
         console.log(value);
     }
 
@@ -178,12 +189,12 @@ class Controller {
 
     loadAllValues() {
         this.noiseSynth.clear();
-        this.model.loadValues();
+        // this.model.loadValues();
         this.view.clearFilterControls();
 
-        const keys = Object.keys(this.model.data.fd);
+        const keys = Object.keys(this.model.getCurrentData().fd);
         keys.forEach(key => {
-            const filterData = this.model.data.fd[key];
+            const filterData = this.model.getCurrentData().fd[key];
             this.noiseSynth.addFilterRuntime(filterData);
 
             this.view.createFilterControls(filterData, 
@@ -196,14 +207,14 @@ class Controller {
         });
 
         this.noiseSynth.updateAudioGraph();
-        this.view.updateAllDials(this.model.data);
+        this.view.updateAllDials(this.model.getCurrentData());
     }
 
 
     initFromPreset() {
-        const keys = Object.keys(this.model.data.fd);
+        const keys = Object.keys(this.model.getCurrentData().fd);
         keys.forEach(key => {
-            const filterData = this.model.data.fd[key];
+            const filterData = this.model.getCurrentData().fd[key];
             this.noiseSynth.addFilterRuntime(filterData);
 
             this.view.createFilterControls(filterData, 

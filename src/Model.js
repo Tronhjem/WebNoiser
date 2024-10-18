@@ -2,7 +2,8 @@ import { saveParamsName, initData } from "./Constants.js";
 
 class Model {
     constructor() {
-        this.data = {...initData};
+        this.data = {current: 'default', presets: {}};
+        this.loadValues();
     }
 
     saveValues() {
@@ -16,40 +17,61 @@ class Model {
 
     loadValues() {
         this.data = JSON.parse(localStorage.getItem("data"));
-        if(!this.data){
-            this.data = { ...initData };
+        if(!this.data || !this.data.presets) {
+            this.data = {current: 'default', presets: {}};
+            this.data.presets['default'] = {...initData};
+            this.data['current'] = 'default';
 
             return;
         }
 
-        this.filters = [];
-
-        console.log("Loaded values: ");
+        console.log("Load values: ");
         console.log(this.data);
+    }
+
+    newPreset(name){
+        this.data.presets[name] = {...this.getCurrentData()};
+        this.setCurrentPreset(name);
+    }
+
+    setCurrentPreset(value) {
+        this.data['current'] = value;
+    }
+
+    setData(property, value) {
+        this.data.presets[this.currentPreset][property] = value;
+    }
+
+    setFilterData(property, filter, value) {
+        this.getCurrentData().fd[filter.id][property] = value;
+    }
+
+    getCurrentData() {
+        return this.data.presets[this.data['current']];
     }
 
     getSaveLink(){
         const url = new URL(window.location);
-        url.searchParams.set(saveParamsName, JSON.stringify(this.data));
+        url.searchParams.set(saveParamsName, JSON.stringify(this.getCurrentData()));
         console.log(url.toString());
     }
 
     addFilter(freq, q, gain, filterType){
         const filterDataEntry = {id: Date.now(), F: freq, Q: q, G: gain, T: filterType};
-        this.data.fd[filterDataEntry.id] = filterDataEntry;
+        this.getCurrentData().fd[filterDataEntry.id] = filterDataEntry;
         return filterDataEntry;
     }
 
     removeFilter(filterData){
-        delete this.data.fd[filterData.id]
+        delete this.getCurrentData().fd[filterData.id]
     }
 
     updateVolume(value) {
-        this.data.vol = value;
+        this.getCurrentData().vol = value;
     }
 
     updateOnePoleFrequency(value) {
-        this.data.lpf1p = value;
+        this.getCurrentData().lpf1p = value;
     }
 
     clearLocalStorage() {

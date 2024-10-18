@@ -1,16 +1,19 @@
 class Selector {
-    constructor(options, initValue, onChangeCallback) {
+    constructor(data, onChangeCallback) {
 
         this.selector = document.createElement("select");
         this.selector.classList.add("selector");
+
+        const options = Object.keys(data);
+
         options.forEach(item => {
             const option = document.createElement("option");
             option.value = item;
             option.textContent = item;
 
-            if (initValue === item) {
-                option.selected = true;
-            }
+            // if (initValue === item) {
+            //     option.selected = true;
+            // }
 
             this.selector.appendChild(option);
         });
@@ -29,6 +32,10 @@ class Selector {
         newOption.value = option;
         newOption.textContent = option;
         this.selector.appendChild(newOption);
+    }
+
+    setValue(value) {
+        this.selector.value = value;
     }
 }
 

@@ -8,13 +8,14 @@ class View {
         this.playButton = document.getElementById("play-button");
         this.addFilterButton = document.getElementById("add-filter-button");
         this.saveButton = document.getElementById("save-button");
-        this.loadButton = document.getElementById("load-button");
+        this.newPresetButton = document.getElementById("new-preset-button");
         this.clearLocalStorageButton = document.getElementById("clear-local-storage");
         this.filterControlsContainer = document.getElementById("filter-controls-container");
         this.coreControls = document.getElementById("core-controls");
         this.easyControls = document.getElementById("easy-controls");
         this.presetControls = document.getElementById("preset-controls");
 
+        this.presetSelector = null;
         this.volumeDial = null;
         this.onePoleDial = null;
     }
@@ -47,8 +48,8 @@ class View {
         });
     }
 
-    bindLoadButton(handler) {
-        this.loadButton.addEventListener("click", event => {
+    bindNewPresetButton(handler) {
+        this.newPresetButton.addEventListener("click", event => {
             handler(event.target.value);
         });
     }
@@ -134,9 +135,17 @@ class View {
         return filterControls.getContainer();
     }
 
-    createPresetSelector(changePresetCallback, presetNames, initValue){
-        const selector = new Selector(presetNames, initValue, changePresetCallback);
-        this.presetControls.appendChild(selector.getContainer());
+    createPresetSelector(changePresetCallback, presetNames){
+        this.presetSelector = new Selector(presetNames, changePresetCallback);
+        this.presetControls.appendChild(this.presetSelector.getContainer());
+    }
+
+    setPresetSelectorName(name){
+        this.presetSelector.setValue(name);
+    }
+
+    addNewPresetName(name){
+        this.presetSelector.addOption(name);
     }
 }
 
