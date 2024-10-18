@@ -1,7 +1,7 @@
 import Model from "./Model.js";
 import View from "./View.js";
 import NoiseSynth from "./NoiseSynth.js";
-import {dialMax, FilterMinMax, biquadLowPass, biquadHighPass} from "./Constants.js";
+import {dialMax, FilterMinMax, biquadLowPass, biquadHighPass, saveParamsName} from "./Constants.js";
 
 class Controller {
     constructor() {
@@ -19,8 +19,8 @@ class Controller {
         this.view.createOnePoleControl(this.handleOnePoleChange.bind(this), this.model.data.lpf1p.f);
 
         this.params = new URLSearchParams(window.location.search);
-        if(this.params.has("params")){
-            this.model.data = JSON.parse(this.params.get("params"));
+        if(this.params.has(saveParamsName)){
+            this.model.data = JSON.parse(this.params.get(saveParamsName));
             this.initFromPreset();
         }
     }
@@ -83,7 +83,7 @@ class Controller {
         const setValue = Math.pow(10, (value / dialMax) * (Math.log10(max) - Math.log10(min)) + Math.log10(min));
 
         this.noiseSynth.updateFilter(setValue, filterData, "frequency", true);
-        this.model.data.fd[filterData.id].Frequency = setValue;
+        this.model.data.fd[filterData.id].F = setValue;
     }
 
     handleFilterQDialChange(value, filterData) {
@@ -101,12 +101,12 @@ class Controller {
         const setValue = (value / dialMax) * (max - min) + min;
 
         this.noiseSynth.updateFilter(setValue, filterData, "gain", false);
-        this.model.data.fd[filterData.id].Gain = setValue;
+        this.model.data.fd[filterData.id].G = setValue;
     }   
 
     handleFilterTypeChange(value, filterData) {
         this.noiseSynth.updateFilter(value, filterData, "filterType", false);
-        this.model.data.fd[filterData.id].FilterType = value;
+        this.model.data.fd[filterData.id].T = value;
     }   
 
     handleSaveButton() {

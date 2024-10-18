@@ -1,3 +1,4 @@
+import { saveParamsName } from "./Constants.js";
 
 class Model {
     constructor() {
@@ -10,14 +11,16 @@ class Model {
     }
 
     saveValues() {
-        localStorage.setItem("globalvalues", JSON.stringify(this.data));
+        localStorage.setItem("data", JSON.stringify(this.data));
         
         console.log("Saved values: ");
         console.log(this.data);
+        console.log("Save link: ");
+        console.log(this.getSaveLink());
     }
 
     loadValues() {
-        this.data = JSON.parse(localStorage.getItem("globalvalues"));
+        this.data = JSON.parse(localStorage.getItem("data"));
         if(!this.data){
             this.data = {
                 lpf1p: { f: 500.0 },
@@ -35,12 +38,12 @@ class Model {
 
     getSaveLink(){
         const url = new URL(window.location);
-        url.searchParams.set("params", JSON.stringify(this.data));
+        url.searchParams.set(saveParamsName, JSON.stringify(this.data));
         console.log(url.toString());
     }
 
     addFilter(freq, q, gain, filterType){
-        const filterDataEntry = {id: Date.now(), Frequency: freq, Q: q, Gain: gain, FilterType: filterType};
+        const filterDataEntry = {id: Date.now(), F: freq, Q: q, G: gain, T: filterType};
         this.data.fd[filterDataEntry.id] = filterDataEntry;
         return filterDataEntry;
     }
@@ -51,10 +54,6 @@ class Model {
 
     updateVolume(value) {
         this.data.vol = value;
-    }
-
-    updateButterworthFrequency(value) {
-        this.data.biquadLowPass.frequency = value;
     }
 
     updateOnePoleFrequency(value) {

@@ -8,9 +8,9 @@ class FilterControls {
         this.container.classList.add("row");
         this.filterData = filterData;
 
-        this.frequencyDial = new Dial(FilterMinMax.frequency.min, FilterMinMax.frequency.max, this.filterData.Frequency, true, changeFrequencyCallback, this.filterData, 0, "Freq", "Hz");
+        this.frequencyDial = new Dial(FilterMinMax.frequency.min, FilterMinMax.frequency.max, this.filterData.F, true, changeFrequencyCallback, this.filterData, 0, "Freq", "Hz");
         this.qDial = new Dial(FilterMinMax.Q.min, FilterMinMax.Q.max, this.filterData.Q, false, changeQCallback, this.filterData, 2, "Q", "");
-        this.gainDial = new Dial(FilterMinMax.gain.min, FilterMinMax.gain.max, this.filterData.Gain, false, changeGainCallback, this.filterData, 0, "Gain", "dB");
+        this.gainDial = new Dial(FilterMinMax.gain.min, FilterMinMax.gain.max, this.filterData.G, false, changeGainCallback, this.filterData, 0, "Gain", "dB");
 
         const typeSelector = document.createElement("select");
         typeSelector.classList.add("filter-type-selector");
@@ -18,14 +18,14 @@ class FilterControls {
             const option = document.createElement("option");
             option.value = type;
             option.textContent = type;
-            if (this.filterData.type === type) {
+            if (this.filterData.T === type) {
                 option.selected = true;
             }
             typeSelector.appendChild(option);
         });
 
         typeSelector.addEventListener("change", (event) => {
-            this.filterData.type = event.target.value;
+            this.filterData.T = event.target.value;
             changeTypeCallback(event.target.value, this.filterData);
             this.updateDialVisibilty();
         });
@@ -49,7 +49,7 @@ class FilterControls {
     }
 
     updateDialVisibilty(){
-        switch (this.filterData.FilterType) {
+        switch (this.filterData.T) {
             case "lowpass":
             case "highpass":
                 this.frequencyDial.setActive(true);

@@ -114,10 +114,10 @@ class NoiseSynth{
 
     createFilter(filterData){
         const filter = this.audioContext.createBiquadFilter();
-        filter.type = filterData.FilterType;
-        filter.frequency.value = filterData.Frequency;
+        filter.type = filterData.T;
+        filter.frequency.value = filterData.F;
         filter.Q.value = filterData.Q;
-        filter.gain.value = filterData.Gain;    
+        filter.gain.value = filterData.G;    
         
         return filter;
     }
@@ -130,7 +130,7 @@ class NoiseSynth{
         this.updateAudioGraph();
     }
 
-    updateFilter(value, filterData, property, isLogarithmic){
+    updateFilter(value, filterData, property){
         if (!this.isInitialized) {
             return;
         }
