@@ -1,6 +1,6 @@
 {
-  "name": "webnoiser",
-  "version": "1.0.0",
+  "name": "NoiseNook",
+  "version": "0.5",
   "description": "A web based noise generator with custom controls",
   "private": true,
   "scripts": {
