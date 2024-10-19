@@ -52,11 +52,8 @@ class Dial {
         this.dial.addEventListener("touchstart", this.touchStart.bind(this));
         this.dial.addEventListener("dblclick", this.doubleClick.bind(this));
 
-        document.addEventListener("mousemove", this.mouseMove.bind(this));
-        document.addEventListener("touchmove", this.touchMove.bind(this));
-
         document.addEventListener("mouseup", this.mouseUp.bind(this));
-        document.addEventListener("touchend", this.mouseUp.bind(this));
+        document.addEventListener("touchend", this.touchEnd.bind(this));
 
         this.updateDialOnDrag();
     }
@@ -69,6 +66,7 @@ class Dial {
         if (!this.isActive) {
             return;
         }
+        document.addEventListener("touchmove", this.touchMove.bind(this));
         this.isDragging = true;
         this.startY = event.touches[0].clientY;
         event.preventDefault();
@@ -84,10 +82,16 @@ class Dial {
         }
     }
 
+    touchEnd(){
+        this.isDragging = false;
+        document.removeEventListener("touchmove", this.touchMove);
+    }
+
     mouseDown(event){
         if (!this.isActive) {
             return;
         }
+        document.addEventListener("mousemove", this.mouseMove.bind(this));
         this.isDragging = true;
         this.startY = event.clientY;
         event.preventDefault();
@@ -105,6 +109,7 @@ class Dial {
 
     mouseUp(){
         this.isDragging = false;
+        document.removeEventListener("mousemove", this.mouseMove);
     }
 
 
