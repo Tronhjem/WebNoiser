@@ -15,7 +15,7 @@ class Controller {
         this.view.bindNewPresetButton(this.handleNewPreset.bind(this));
         this.view.bindClearLocalStorageButton(this.handleClearLocalStorageButton.bind(this));
 
-        this.view.createVolumeControl(this.handleVolumeChange.bind(this), this.model.getCurrentData().vol);
+        this.view.createVolumeControl(this.handleVolumeChange.bind(this), this.model.getData('vol'));
         this.view.createOnePoleControl(this.handleOnePoleChange.bind(this), this.model.getCurrentData().lpf1p);
         this.view.createSpeechMaskControl(this.handleSpeechMaskChange.bind(this), this.model.getCurrentData().sMask);
 
@@ -30,7 +30,7 @@ class Controller {
         if(this.params.has(saveParamsName)){
             const data = JSON.parse(this.params.get(saveParamsName));
             this.setNewPreset('From Link');
-            this.model.data.presets['From Link'] = {...data};
+            this.model.tempData = {...data};
             this.loadAllValues();
         }
     }
@@ -200,6 +200,7 @@ class Controller {
     loadAllValues() {
         this.noiseSynth.clear();
         this.view.clearFilterControls();
+        this.model.loadValues();
 
         const keys = Object.keys(this.model.getCurrentData().fd);
         keys.forEach(key => {

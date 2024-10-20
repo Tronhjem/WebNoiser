@@ -3,10 +3,14 @@ import { saveParamsName, initData } from "./Constants.js";
 class Model {
     constructor() {
         this.data = {current: 'default', presets: {}};
+        this.tempData = {...initData}
         this.loadValues();
+        this.setCurrentPreset('default');
     }
 
     saveValues() {
+        this.data.presets[this.data['current']] = {...this.getCurrentData()};
+
         localStorage.setItem("data", JSON.stringify(this.data));
         
         console.log("Saved values: ");
@@ -14,14 +18,18 @@ class Model {
         console.log("Save link: ");
         console.log(this.getSaveLink());
     }
+    
+    initData() {
+        this.data = {current: 'default', presets: {}};
+        this.data.presets['default'] = {...initData};
+        this.data['current'] = 'default';
+        this.tempData = {...initData}
+    }
 
     loadValues() {
         this.data = JSON.parse(localStorage.getItem("data"));
         if(!this.data || !this.data.presets) {
-            this.data = {current: 'default', presets: {}};
-            this.data.presets['default'] = {...initData};
-            this.data['current'] = 'default';
-
+            this.initData();
             return;
         }
 
@@ -34,20 +42,29 @@ class Model {
         this.setCurrentPreset(name);
     }
 
-    setCurrentPreset(value) {
-        this.data['current'] = value;
+    setData(property, value) {
+        this.tempData[property] = value;
     }
 
-    setData(property, value) {
-        this.data.presets[this.currentPreset][property] = value;
+    getData(property) {
+        return this.tempData[property];
     }
 
     setFilterData(property, filter, value) {
         this.getCurrentData().fd[filter.id][property] = value;
     }
+    
+    setCurrentPreset(value) {
+        this.data['current'] = value;
+        this.tempData = {...this.data.presets[value]};
+    }
+
+    getCurrentPreset() {
+        return this.data.presets[this.data['current']];
+    }
 
     getCurrentData() {
-        return this.data.presets[this.data['current']];
+        return this.tempData;
     }
 
     getSaveLink(){
