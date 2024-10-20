@@ -42,18 +42,6 @@ class Model {
         this.setCurrentPreset(name);
     }
 
-    setData(property, value) {
-        this.tempData[property] = value;
-    }
-
-    getData(property) {
-        return this.tempData[property];
-    }
-
-    setFilterData(property, filter, value) {
-        this.getCurrentData().fd[filter.id][property] = value;
-    }
-    
     setCurrentPreset(value) {
         this.data['current'] = value;
         this.tempData = {...this.data.presets[value]};
@@ -73,22 +61,14 @@ class Model {
         console.log(url.toString());
     }
 
-    addFilter(freq, q, gain, filterType){
+    addFilterData(freq, q, gain, filterType){
         const filterDataEntry = {id: Date.now(), F: freq, Q: q, G: gain, T: filterType};
         this.getCurrentData().fd[filterDataEntry.id] = filterDataEntry;
         return filterDataEntry;
     }
 
-    removeFilter(filterData){
+    removeFilterData(filterData){
         delete this.getCurrentData().fd[filterData.id]
-    }
-
-    updateVolume(value) {
-        this.getCurrentData().vol = value;
-    }
-
-    updateOnePoleFrequency(value) {
-        this.getCurrentData().lpf1p = value;
     }
 
     clearLocalStorage() {

@@ -15,7 +15,7 @@ class Controller {
         this.view.bindNewPresetButton(this.handleNewPreset.bind(this));
         this.view.bindClearLocalStorageButton(this.handleClearLocalStorageButton.bind(this));
 
-        this.view.createVolumeControl(this.handleVolumeChange.bind(this), this.model.getData('vol'));
+        this.view.createVolumeControl(this.handleVolumeChange.bind(this), this.model.getCurrentData().vol);
         this.view.createOnePoleControl(this.handleOnePoleChange.bind(this), this.model.getCurrentData().lpf1p);
         this.view.createSpeechMaskControl(this.handleSpeechMaskChange.bind(this), this.model.getCurrentData().sMask);
 
@@ -49,7 +49,7 @@ class Controller {
 
     handleVolumeChange(value) {
         const volume = value / dialMax;
-        this.model.updateVolume(volume);
+        this.model.getCurrentData().vol = volume;
         this.noiseSynth.setVolume(volume);
     }
 
@@ -58,7 +58,7 @@ class Controller {
         let max = FilterMinMax.frequency.max;
 
         const frequency = Math.pow(10, (value / dialMax) * (Math.log10(max) - Math.log10(min)) + Math.log10(min));
-        this.model.updateOnePoleFrequency(frequency);
+        this.model.getCurrentData().lpf1p = frequency;
         this.noiseSynth.setOnePoleFrequency(frequency);
     }
     
@@ -109,7 +109,7 @@ class Controller {
             q = FilterMinMax.Q.min, 
             gain = FilterMinMax.gain.mid) 
     {
-        const filterData = this.model.addFilter(freq, q, gain, filterType);
+        const filterData = this.model.addFilterData(freq, q, gain, filterType);
 
         this.noiseSynth.addFilterRuntime(filterData);
 
@@ -174,17 +174,13 @@ class Controller {
         this.view.setPresetSelectorName(name);
     }
 
-    handleLoadButton() {
-        this.loadAllValues();
-    }
-
     handleClearLocalStorageButton() {
         this.model.clearLocalStorage();
     }
      
     handleRemoveFilter(filterData) {
         this.noiseSynth.removeFilter(filterData);
-        this.model.removeFilter(filterData);
+        this.model.removeFilterData(filterData);
     }
 
     handlePresetChange(value, data) {
@@ -200,7 +196,6 @@ class Controller {
     loadAllValues() {
         this.noiseSynth.clear();
         this.view.clearFilterControls();
-        this.model.loadValues();
 
         const keys = Object.keys(this.model.getCurrentData().fd);
         keys.forEach(key => {
