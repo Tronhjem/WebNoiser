@@ -2,14 +2,14 @@ import { saveParamsName, initData } from "./Constants.js";
 
 class Model {
     constructor() {
-        this.data = {current: 'default', presets: {}};
-        this.tempData = {...initData}
+        this.data = {};
+        this.tempData = {};
         this.loadValues();
         this.setCurrentPreset('default');
     }
 
     saveValues() {
-        this.data.presets[this.data['current']] = {...this.getCurrentData()};
+        this.data.presets[this.data['current']] = this.deepCopy(this.getCurrentData());
 
         localStorage.setItem("data", JSON.stringify(this.data));
         
@@ -18,12 +18,34 @@ class Model {
         console.log("Save link: ");
         console.log(this.getSaveLink());
     }
+
+    deepCopy(obj) {
+        if (obj === null || typeof obj !== 'object') {
+            return obj;
+        }
+
+        if (Array.isArray(obj)) {
+            const copy = [];
+            for (let i = 0; i < obj.length; i++) {
+                copy[i] = this.deepCopy(obj[i]);
+            }
+            return copy;
+        }
+
+        const copy = {};
+        for (const key in obj) {
+            if (obj.hasOwnProperty(key)) {
+                copy[key] = this.deepCopy(obj[key]);
+            }
+        }
+        return copy;
+    }
     
     initData() {
         this.data = {current: 'default', presets: {}};
-        this.data.presets['default'] = {...initData};
+        this.data.presets['default'] = this.deepCopy(initData);
         this.data['current'] = 'default';
-        this.tempData = {...initData}
+        this.tempData = this.deepCopy(initData);
     }
 
     loadValues() {
@@ -38,13 +60,13 @@ class Model {
     }
 
     newPreset(name){
-        this.data.presets[name] = {...this.getCurrentData()};
-        this.setCurrentPreset(name);
+        this.data['current'] = name;
+        this.data.presets[name] = this.deepCopy(this.getCurrentData());
     }
 
     setCurrentPreset(value) {
         this.data['current'] = value;
-        this.tempData = {...this.data.presets[value]};
+        this.tempData = this.deepCopy(this.data.presets[value]);
     }
 
     getCurrentPreset() {
@@ -58,7 +80,7 @@ class Model {
     getSaveLink(){
         const url = new URL(window.location);
         url.searchParams.set(saveParamsName, JSON.stringify(this.getCurrentData()));
-        console.log(url.toString());
+        return url.toString();
     }
 
     addFilterData(freq, q, gain, filterType){

@@ -158,8 +158,7 @@ class Controller {
         this.saveAllValues();
     }
 
-    handleNewPreset()
-    {
+    handleNewPreset(){
         const name = Date.now();
         this.setNewPreset(name);
     }
@@ -186,7 +185,6 @@ class Controller {
     handlePresetChange(value, data) {
         this.model.setCurrentPreset(value);
         this.loadAllValues();
-        console.log(value);
     }
 
     saveAllValues() {
