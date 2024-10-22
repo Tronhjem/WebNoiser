@@ -37,11 +37,36 @@ body {
     outline: none; /* Remove outline */
 }
 
+.my-other-button{
+    background-color: var(--bgcolor);
+    transition: 0.1s ease;
+
+    color: var(--contrastColor);
+    border: none;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 5px;
+    padding: 5px 20px;
+    outline: none; /* Remove outline */
+
+}
+
 .my-button:active {
     opacity: 0.5;
 }
 
 .my-button:focus {
+    outline: none; /* Remove outline when focused */
+}
+
+.my-other-button:active {
+    opacity: 0.5;
+}
+
+.my-other-button:focus {
     outline: none; /* Remove outline when focused */
 }
 
@@ -214,8 +239,8 @@ canvas {
 }
 
 .selector-button {
-    padding: 10px;
     cursor: pointer;
+    width: 10rem;
 }
 
 .custom-dropdown {
@@ -223,7 +248,8 @@ canvas {
     position: absolute;
     background-color: var(--midColor);
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-    min-width: 300px;
+    width: 100%;
+    min-width: 16rem;
     z-index: 10;
     color: var(--contrastColor);
 }
@@ -247,7 +273,20 @@ canvas {
     opacity: 0.8;
 }
 
-.delete-button {
+.dropdown-action-button {
     margin-left: 10px;
+    position: absolute;
+    right: 2px;
     cursor: pointer;
+}
+
+.dropdown-input{
+    padding: 10px;
+    border: none var(--midColor);
+    background-color: var(--midColor);
+    color: var(--contrastColor);
+}
+
+.dropdown-input:focus {
+    outline: none;
 }

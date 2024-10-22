@@ -8,7 +8,6 @@ class View {
         this.playButton = document.getElementById("play-button");
         this.addFilterButton = document.getElementById("add-filter-button");
         this.saveButton = document.getElementById("save-button");
-        this.newPresetButton = document.getElementById("new-preset-button");
         this.clearLocalStorageButton = document.getElementById("clear-local-storage");
         this.filterControlsContainer = document.getElementById("filter-controls-container");
         this.coreControls = document.getElementById("core-controls");
@@ -44,12 +43,6 @@ class View {
 
     bindSaveButton(handler) {
         this.saveButton.addEventListener("click", event => {
-            handler(event.target.value);
-        });
-    }
-
-    bindNewPresetButton(handler) {
-        this.newPresetButton.addEventListener("click", event => {
             handler(event.target.value);
         });
     }
@@ -135,8 +128,8 @@ class View {
         return filterControls.getContainer();
     }
 
-    createPresetSelector(changePresetCallback, presetNames){
-        this.presetSelector = new Selector(presetNames, changePresetCallback);
+    createPresetSelector(data, changePresetCallback, addPresetCallback, removePresetCallback){
+        this.presetSelector = new Selector(data, changePresetCallback, addPresetCallback, removePresetCallback);
         this.presetControls.appendChild(this.presetSelector.getContainer());
     }
 
@@ -146,6 +139,10 @@ class View {
 
     addNewPresetName(name){
         this.presetSelector.addOption(name);
+    }
+
+    updateSelectorView(){
+        this.presetSelector.renderOptions();
     }
 }
 

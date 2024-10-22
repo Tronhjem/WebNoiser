@@ -1,55 +1,17 @@
-// class Selector {
-//     constructor(data, onChangeCallback) {
-
-//         this.selector = document.createElement("select");
-//         this.selector.classList.add("selector");
-
-//         const options = Object.keys(data);
-
-//         options.forEach(item => {
-//             const option = document.createElement("option");
-//             option.value = item;
-//             option.textContent = item;
-
-//             // if (initValue === item) {
-//             //     option.selected = true;
-//             // }
-
-//             this.selector.appendChild(option);
-//         });
-
-//         this.selector.addEventListener("change", (event) => {
-//            onChangeCallback(event.target.value, this.data);
-//         });
-//     }
-
-//     getContainer() {
-//         return this.selector;
-//     }
-    
-//     addOption(option) {
-//         const newOption = document.createElement("option");
-//         newOption.value = option;
-//         newOption.textContent = option;
-//         this.selector.appendChild(newOption);
-//     }
-
-//     setValue(value) {
-//         this.selector.value = value;
-//     }
-// }
-
-// export default Selector;
-// onabor
-
 class Selector {
-    constructor(data, onChangeCallback) {
+    constructor(data, onChangeCallback, onAddCallback, onRemoveCallback) {
+        this.data = data;
+        this.onChangeCallback = onChangeCallback;
+        this.onAddCallback = onAddCallback;
+        this.onRemoveCallback = onRemoveCallback;
+
         this.container = document.createElement("div");
         this.container.classList.add("custom-selector");
 
         this.button = document.createElement("button");
-        this.button.textContent = "Select an option";
+        this.button.textContent = data['current'];
         this.button.classList.add("selector-button");
+        this.button.classList.add("my-button");
         this.container.appendChild(this.button);
 
         this.dropdown = document.createElement("div");
@@ -61,28 +23,30 @@ class Selector {
 
         this.input = document.createElement("input");
         this.input.type = "text";
-        this.input.placeholder = "Add new option";
+        this.input.placeholder = "new preset name...";
         this.dropdown.appendChild(this.input);
+        this.input.classList.add("dropdown-input");
 
         this.addButton = document.createElement("button");
         this.addButton.textContent = "Add";
+        this.addButton.classList.add("dropdown-action-button");
+        this.addButton.classList.add("my-other-button");
         this.dropdown.appendChild(this.addButton);
-
-        this.data = data;
-        this.onChangeCallback = onChangeCallback;
-
-        this.renderOptions();
-
-        this.button.addEventListener("click", () => {
-            this.dropdown.classList.toggle("show");
-        });
 
         this.addButton.addEventListener("click", () => {
             const value = this.input.value.trim();
             if (value) {
                 this.addOption(value);
+                this.onAddCallback(value);
+                this.onChangeValue(value);
                 this.input.value = "";
             }
+        });
+
+        this.renderOptions();
+
+        this.button.addEventListener("click", () => {
+            this.dropdown.classList.toggle("show");
         });
 
         document.addEventListener("click", (event) => {
@@ -94,27 +58,47 @@ class Selector {
 
     renderOptions() {
         this.optionsList.innerHTML = "";
-        Object.keys(this.data).forEach(item => {
-            const li = document.createElement("li");
-            li.textContent = item;
 
-            const deleteButton = document.createElement("button");
-            deleteButton.textContent = "X";
-            deleteButton.classList.add("delete-button");
-            deleteButton.addEventListener("click", (event) => {
-                event.stopPropagation(); // Prevent the click event from bubbling up to the li
-                this.removeOption(item);
-            });
-
-            li.appendChild(deleteButton);
-            li.addEventListener("click", () => {
-                this.setValue(item);
-                this.onChangeCallback(item, this.data);
-                this.dropdown.classList.remove("show");
-            });
-
-            this.optionsList.appendChild(li);
+        let item = 'default';
+        const li = document.createElement("li");
+        li.textContent = item;
+        li.addEventListener("click", () => {
+            this.onChangeValue(item);
         });
+
+        this.optionsList.appendChild(li);
+
+        Object.keys(this.data.presets).forEach(item => {
+
+            if (item != 'default') {
+                const li = document.createElement("li");
+                li.textContent = item;
+                const deleteButton = document.createElement("button");
+                deleteButton.textContent = "X";
+                deleteButton.classList.add("dropdown-action-button");
+                deleteButton.classList.add("my-other-button");
+                deleteButton.addEventListener("click", (event) => {
+                    event.stopPropagation();
+                    this.removeOption(item);
+                    this.onRemoveCallback(item, this.data);
+                });
+                li.appendChild(deleteButton);
+
+                li.addEventListener("click", () => {
+                    this.onChangeValue(item);
+                });
+
+                this.optionsList.appendChild(li);
+            }
+        });
+
+        this.button.textContent = this.data['current'];
+    }
+
+    onChangeValue(item) {
+        this.setValue(item);
+        this.onChangeCallback(item, this.data);
+        this.dropdown.classList.remove("show");
     }
 
     getContainer() {
@@ -122,12 +106,10 @@ class Selector {
     }
 
     addOption(option) {
-        this.data[option] = true; // Assuming data is an object with keys as options
         this.renderOptions();
     }
 
     removeOption(option) {
-        delete this.data[option];
         this.renderOptions();
     }
 

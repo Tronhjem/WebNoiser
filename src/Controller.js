@@ -12,7 +12,6 @@ class Controller {
         this.view.bindPlayButton(this.handlePlayButton.bind(this));
         this.view.bindAddFilterButton(this.handleAddFilterButton.bind(this));
         this.view.bindSaveButton(this.handleSaveButton.bind(this));
-        this.view.bindNewPresetButton(this.handleNewPreset.bind(this));
         this.view.bindClearLocalStorageButton(this.handleClearLocalStorageButton.bind(this));
 
         this.view.createVolumeControl(this.handleVolumeChange.bind(this), this.model.getCurrentData().vol);
@@ -23,8 +22,9 @@ class Controller {
         this.view.createMidControl(this.handleMidControl.bind(this), this.model.getCurrentData().md);
         this.view.createHiControl(this.handleHiControl.bind(this), this.model.getCurrentData().hi);
 
-        this.view.createPresetSelector(this.handlePresetChange.bind(this), this.model.data.presets);
         this.loadAllValues();
+
+        this.view.createPresetSelector(this.model.data, this.handlePresetChange.bind(this), this.handleAddPreset.bind(this), this.handleRemovePreset.bind(this));
 
         this.params = new URLSearchParams(window.location.search);
         if(this.params.has(saveParamsName)){
@@ -33,6 +33,8 @@ class Controller {
             this.model.tempData = {...data};
             this.loadAllValues();
         }
+
+        this.view.updateSelectorView();
     }
 
     async startAudio(){
@@ -158,9 +160,14 @@ class Controller {
         this.saveAllValues();
     }
 
-    handleNewPreset(){
-        const name = Date.now();
+    handleAddPreset(name){
+        // const name = Date.now();
         this.setNewPreset(name);
+    }
+
+    handleRemovePreset(name) {
+        this.model.removePreset(name);
+        this.view.updateSelectorView();
     }
 
     setNewPreset(name) {

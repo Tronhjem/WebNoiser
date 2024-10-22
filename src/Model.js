@@ -5,7 +5,7 @@ class Model {
         this.data = {};
         this.tempData = {};
         this.loadValues();
-        this.setCurrentPreset('default');
+        this.setCurrentPreset(this.data['current']);
     }
 
     saveValues() {
@@ -62,6 +62,12 @@ class Model {
     newPreset(name){
         this.data['current'] = name;
         this.data.presets[name] = this.deepCopy(this.getCurrentData());
+    }
+    
+    removePreset(name){
+        delete this.data.presets[name];
+        this.data['current'] = 'default';
+        this.tempData = this.deepCopy(this.data.presets['default']);
     }
 
     setCurrentPreset(value) {
