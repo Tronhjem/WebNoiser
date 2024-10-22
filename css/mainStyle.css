@@ -206,3 +206,48 @@ canvas {
 .faded {
     opacity: 0.2;
 }
+
+.custom-selector {
+    position: relative;
+    display: inline-block;    
+    /* overflow: hidden; */
+}
+
+.selector-button {
+    padding: 10px;
+    cursor: pointer;
+}
+
+.custom-dropdown {
+    display: none;
+    position: absolute;
+    background-color: var(--midColor);
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    min-width: 300px;
+    z-index: 10;
+    color: var(--contrastColor);
+}
+
+.custom-dropdown.show {
+    display: block;
+}
+
+.custom-dropdown ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.custom-dropdown li {
+    padding: 8px 16px;
+    cursor: pointer;
+}
+
+.custom-dropdown li:hover {
+    opacity: 0.8;
+}
+
+.delete-button {
+    margin-left: 10px;
+    cursor: pointer;
+}
