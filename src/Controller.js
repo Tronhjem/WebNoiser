@@ -99,7 +99,14 @@ class Controller {
     }
 
     handlePlayButton() {
-        this.startAudio();
+        if(!this.noiseSynth.isPlaying){
+            this.startAudio();
+            this.noiseSynth.setPlayState(true);
+        }
+        else{
+            this.noiseSynth.setPlayState(false);
+        }
+        this.view.togglePlayIcon(this.noiseSynth.isPlaying);
     }
 
     handleAddFilterButton() {

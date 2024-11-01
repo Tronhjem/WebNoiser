@@ -34,6 +34,15 @@ class View {
         this.hiDial.setDial(data.hi);
     }
 
+    togglePlayIcon(isPlaying){
+        if (isPlaying){
+            this.playButton.attributes.src.value = "img/stop.svg";
+        }
+        else {
+            this.playButton.attributes.src.value = "img/play.svg";
+        }
+    }
+
     toggleAdvancedControls(){
         if(this.advancedControlToggle.textContent === "Show Advanced Controls"){
             this.advancedControlToggle.textContent = "Hide Advanced Controls";

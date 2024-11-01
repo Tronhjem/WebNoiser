@@ -18,6 +18,18 @@ class NoiseSynth{
         this.isInitialized = false;
 
         this.dataArray = null;
+        this.isPlaying = false;
+    }
+
+    setPlayState(play){
+        if(play){
+            this.audioContext.resume();
+            this.isPlaying = true;
+        }
+        else{
+            this.audioContext.suspend();
+            this.isPlaying = false;
+        }
     }
 
     async initialize(data){
@@ -58,6 +70,7 @@ class NoiseSynth{
 
         this.isInitialized = true;
         this.connectAll();
+        this.isPlaying = true;
     }
     
     clear(){
