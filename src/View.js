@@ -152,7 +152,8 @@ class View {
 
     createPresetSelector(data, changePresetCallback, addPresetCallback, removePresetCallback){
         this.presetSelector = new Selector(data, changePresetCallback, addPresetCallback, removePresetCallback);
-        this.presetControls.appendChild(this.presetSelector.getContainer());
+        const presetContainer = document.getElementById("preset-container");
+        presetContainer.insertBefore(this.presetSelector.getContainer(), presetContainer.firstChild);
     }
 
     setPresetSelectorName(name){

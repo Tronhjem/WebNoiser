@@ -15,10 +15,6 @@ body {
     margin: 4rem;
 }
 
-.core-dial-control{
-    /* margin: 0.5rem; */
-}
-
 #about{
     color: var(--contrastColor);
     margin: 4rem;
@@ -57,9 +53,7 @@ body {
     margin: 4px 2px;
     cursor: pointer;
     border-radius: 5px;
-    /* padding: 5px; */
     outline: none; /* Remove outline */
-
 }
 
 .my-button:active {
@@ -107,15 +101,23 @@ canvas {
     border: 1px solid white;
 }
 
+#save-button {
+    position:absolute;
+    top: 0.2rem;
+    margin-left: 0.4rem;
+    height: 2rem;
+}
+
+#preset-controls{
+    margin-top: 1rem;
+}
+
 .button-controls{
     display: flex;
     justify-content: center; /* Center horizontally */
     align-items: center; /* Center vertically if needed */
     height: 100%;
     margin-top: 1rem;
-}
-
-#advanced-controls{
 }
 
 .advanced-control-button{
@@ -264,7 +266,6 @@ canvas {
 
 .dial-input:focus {
     box-shadow: none; 
-    /* outline: 2px solid var(--contrastColor);  */
     border: 1px solid var(--contrastColor); 
 }
 
