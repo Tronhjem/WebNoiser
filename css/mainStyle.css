@@ -75,10 +75,6 @@ body {
     cursor: pointer; 
 }
 
-.control-icon:active {
-    opacity: 0.8;
-}
-
 .my-other-button{
     background-color: var(--bgcolor);
     transition: 0.1s ease;
@@ -95,16 +91,21 @@ body {
 }
 
 .my-button:active {
-    opacity: 0.5;
+    opacity: 0.4;
+}
+
+.control-icon:active {
+    opacity: 0.4;
+}
+
+.my-other-button:active {
+    opacity: 0.4;
 }
 
 .my-button:focus {
     outline: none; /* Remove outline when focused */
 }
 
-.my-other-button:active {
-    opacity: 0.5;
-}
 
 .my-other-button:focus {
     outline: none; /* Remove outline when focused */
