@@ -228,6 +228,31 @@ canvas {
     color: var(--contrastColor);
 }
 
+.dial-input {
+    margin-top: 10px;
+    text-align: center;
+    width: 100%;
+    position: absolute;
+    top: 100%;
+    color: var(--contrastColor);
+    background-color: var(--bgcolor);
+    -moz-appearance: textfield;
+    outline: none;
+    box-shadow: none; /* Remove 3D effect on focus */
+}
+
+.dial-input:focus {
+    box-shadow: none; 
+    /* outline: 2px solid var(--contrastColor);  */
+    border: 1px solid var(--contrastColor); 
+}
+
+.dial-input::-webkit-outer-spin-button,
+.dial-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
 .faded {
     opacity: 0.2;
 }

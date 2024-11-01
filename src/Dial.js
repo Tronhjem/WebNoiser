@@ -12,9 +12,16 @@ class Dial {
         this.name = name;
         this.suffix = suffix;
         this.isActive = true;
+        this.isInput = false;
 
         this.container = document.createElement("div");
         this.container.classList.add("dial-container");
+        
+        this.input = document.createElement("input");
+        this.input.classList.add("dial-input");
+        this.input.setAttribute('type', 'number');
+        this.input.style.display = 'none';
+        this.container.appendChild(this.input);
 
         this.dial = document.createElement("div");
         this.dial.classList.add("dial");
@@ -40,6 +47,7 @@ class Dial {
 
         this.isDragging = false;
         this.startY = 0;
+        this.valueAtStartDragging = 0;
 
         this.value = 0;
         if (this.isLog) {
@@ -50,10 +58,15 @@ class Dial {
 
         this.dial.addEventListener("mousedown", this.mouseDown.bind(this));
         this.dial.addEventListener("touchstart", this.touchStart.bind(this));
-        this.dial.addEventListener("dblclick", this.doubleClick.bind(this));
+        // this.dial.addEventListener("dblclick", this.doubleClick.bind(this));
 
         document.addEventListener("mouseup", this.mouseUp.bind(this));
         document.addEventListener("touchend", this.touchEnd.bind(this));
+
+
+        this.dial.addEventListener('click', this.showInput.bind(this));
+        this.input.addEventListener('keydown', this.handleInputKeydown.bind(this));
+        this.input.addEventListener('blur', this.handleInputBlur.bind(this));
 
         this.updateDialOnDrag();
     }
@@ -66,14 +79,16 @@ class Dial {
         if (!this.isActive) {
             return;
         }
+
         document.addEventListener("touchmove", this.touchMove.bind(this));
         this.isDragging = true;
         this.startY = event.touches[0].clientY;
+        this.valueAtStartDragging = this.value;
         event.preventDefault();
     }
 
     touchMove(event){
-        if (this.isDragging && this.isActive) {
+        if (this.isDragging && this.isActive && !this.isInput) {
             const deltaY = this.startY - event.touches[0].clientY;
             this.value += deltaY * 1;
             this.value = Math.max(dialMin, Math.min(dialMax, this.value));
@@ -91,14 +106,16 @@ class Dial {
         if (!this.isActive) {
             return;
         }
+
         document.addEventListener("mousemove", this.mouseMove.bind(this));
         this.isDragging = true;
         this.startY = event.clientY;
+        this.valueAtStartDragging = this.value;
         event.preventDefault();
     }
 
     mouseMove(mouseEvent){
-        if (this.isDragging && this.isActive) {
+        if (this.isDragging && this.isActive && !this.isInput) {
             const deltaY = this.startY - mouseEvent.clientY;
             this.value += deltaY * 1;
             this.value = Math.max(dialMin, Math.min(dialMax, this.value));
@@ -112,6 +129,46 @@ class Dial {
         document.removeEventListener("mousemove", this.mouseMove);
     }
 
+    showInput() {
+        if (this.valueAtStartDragging == this.value) {
+            this.input.style.display = 'block';
+            this.textElement.style.display = 'none';
+            let setValue = 0;
+            if (this.isLog) {
+                setValue = this.roundDown(Math.pow(10, (this.value / dialMax) * (Math.log10(this.max) - Math.log10(this.min)) + Math.log10(this.min), this.decimals), this.decimals);
+            }
+            else{
+                setValue = this.roundDown((this.value / dialMax) * (this.max - this.min) + this.min, this.decimals);
+            }
+
+            this.input.value = setValue;
+            this.input.focus();
+            this.isInput = true;
+        }
+    }
+
+    handleInputKeydown(event) {
+        if (event.key === 'Enter') {
+            this.updateValueFromInput();
+            this.isInput = false;
+        }
+    }
+
+    handleInputBlur() {
+        this.updateValueFromInput();
+    }
+
+    updateValueFromInput() {
+        const newValue = parseFloat(this.input.value);
+        if (!isNaN(newValue)) {
+            let value = Math.max(this.min, Math.min(this.max, newValue));
+            this.setDial(value);
+        }
+
+        this.input.style.display = 'none';
+        this.textElement.style.display = 'block';
+        this.isInput = false;
+    }
 
     getContainer(){
         return this.container;
