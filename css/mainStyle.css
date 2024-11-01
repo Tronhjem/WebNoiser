@@ -252,6 +252,7 @@ canvas {
     z-index: 10;
     color: var(--contrastColor);
     border-radius: 5px;
+    padding: 1px;
 }
 
 .custom-dropdown.show {
