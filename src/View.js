@@ -14,6 +14,11 @@ class View {
         this.easyControls = document.getElementById("easy-controls");
         this.presetControls = document.getElementById("preset-controls");
 
+        this.advancedControlToggle = document.getElementById("advanced-control-toggle");
+        this.advancedControlToggle.addEventListener("click", this.toggleAdvancedControls.bind(this));
+        this.advancedControlContainer = document.getElementById("advanced-control-container");
+        this.advancedControlContainer.style.display = "none";
+
         this.presetSelector = null;
         this.volumeDial = null;
         this.onePoleDial = null;
@@ -27,6 +32,17 @@ class View {
         this.loDial.setDial(data.lo);
         this.midDial.setDial(data.md);
         this.hiDial.setDial(data.hi);
+    }
+
+    toggleAdvancedControls(){
+        if(this.advancedControlToggle.textContent === "Show Advanced Controls"){
+            this.advancedControlToggle.textContent = "Hide Advanced Controls";
+            this.advancedControlContainer.style.display = "block";
+        } 
+        else {
+            this.advancedControlToggle.textContent = "Show Advanced Controls";
+            this.advancedControlContainer.style.display = "none";
+        }
     }
 
     bindPlayButton(handler) {
@@ -62,6 +78,7 @@ class View {
     createVolumeControl(volumeChangedCallback, initValue = 0.5){
         const container = document.createElement("div");
         container.classList.add("volume-control");
+        container.classList.add("core-dial-control");
 
         this.volumeDial = new Dial(0, 1, initValue, false, volumeChangedCallback, null, 2, "Volume", "");
 
@@ -72,8 +89,9 @@ class View {
     createOnePoleControl(onePoleChangedCallback, initValue = 1500){
         const container = document.createElement("div");
         container.classList.add("onepole-control");
+        container.classList.add("core-dial-control");
 
-        this.onePoleDial = new Dial(FilterMinMax.frequency.min, FilterMinMax.frequency.max, initValue, true, onePoleChangedCallback, null, 2, "Freq", "Hz");
+        this.onePoleDial = new Dial(FilterMinMax.frequency.min, FilterMinMax.frequency.max, initValue, true, onePoleChangedCallback, null, 2, "Smooth", "Hz");
 
         container.appendChild(this.onePoleDial.getContainer());
         this.coreControls.appendChild(container);
@@ -83,6 +101,7 @@ class View {
         const container = document.createElement("div");
         container.classList.add("lowShelf-control");
         container.classList.add("easy-control");
+        container.classList.add("core-dial-control");
 
         this.loDial = new Dial(FilterMinMax.gain.min, FilterMinMax.gain.max, initValue, false, callback, null, 2, "Low", "dB");
 
@@ -94,6 +113,7 @@ class View {
         const container = document.createElement("div");
         container.classList.add("mid-control");
         container.classList.add("easy-control");
+        container.classList.add("core-dial-control");
 
         this.midDial = new Dial(FilterMinMax.gain.min, FilterMinMax.gain.max, initValue, false, callback, null, 2, "Mid", "dB");
 
@@ -105,6 +125,7 @@ class View {
         const container = document.createElement("div");
         container.classList.add("hi-control");
         container.classList.add("easy-control");
+        container.classList.add("core-dial-control");
 
         this.hiDial = new Dial(FilterMinMax.gain.min, FilterMinMax.gain.max, initValue, false, callback, null, 2, "High", "dB");
 
@@ -115,6 +136,7 @@ class View {
     createSpeechMaskControl(callback, initValue){
         const container = document.createElement("div");
         container.classList.add("speech-mask-control");
+        container.classList.add("core-dial-control");
 
         this.speechMaskDial = new Dial(FilterMinMax.gain.min, FilterMinMax.gain.max, initValue, false, callback, null, 2, "Speech Mask", "dB");
 
