@@ -6,6 +6,7 @@ class FilterControls {
         this.container = document.createElement("div");
         this.container.classList.add("filter-controls");
         this.container.classList.add("row");
+        this.container.classList.add("button-row");
         this.filterData = filterData;
 
         this.frequencyDial = new Dial(FilterMinMax.frequency.min, FilterMinMax.frequency.max, this.filterData.F, true, changeFrequencyCallback, this.filterData, 0, "Freq", "Hz");

@@ -6,42 +6,50 @@
     <title>Noise Nook</title>
     <link rel="stylesheet" href="css/mainStyle.css"> 
 
-    <!-- BOOTSTRAP -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 </head>
 <body>
-    <div class="container">
-        <div class="button-controls" id="preset-controls">
-            <button class="my-button" id="save-button">Save</button>
-            <button class="my-button" id="clear-local-storage">Clear All Presets</button>
-        </div>
-        <div class="button-controls" >
-            <button class="my-button" id="play-button">Start Audio</button>
+    <div class="container-fluid">
+        <div class="row" id="preset-controls">
+            <div class="col d-flex align-items-center flex-column">
+                <div class="align-self-start" id="preset-container">
+                    <img src="img/floppy-disk.svg" alt="" class="control-icon" id="save-button">
+                    <img src="img/play.svg" id="play-button" class="control-icon" alt="">
+                </div>
+            </div>
+            <div class="col d-flex align-items-end flex-column">
+                <button class="my-button" id="clear-local-storage">Clear All Presets</button>
+            </div>
         </div>
         
-        <div class="row m-5" id="core-controls">
+        <div class="row button-row" id="core-controls">
         </div>
 
-        <div class="row m-5" id="easy-controls">
+        <div class="row button-row" id="easy-controls">
         </div>
 
-        <div class="row m-5" id="advanced-controls">
-            <button class="my-button" id="add-filter-button">Add Filter</button>
+        <div class="row advanced-control-button">
+            <button class="my-button" id="advanced-control-toggle">Show Advanced Controls</button>
         </div>
 
-        <div id="filter-controls-container">
+        <div id="advanced-control-container">
+            <div id="filter-controls-container">
+            </div>
+            <div class="row" id="advanced-button-controls">
+                <button class="my-button" id="add-filter-button">Add Filter</button>
+            </div>
         </div>
 
         <div class="row text-center" id="about">
             <div class="col-md-12">
                 <h1><strong>NoiseNook: The Web-Based Noise Synthesizer for Enhanced Focus</strong></h1>
-                <p> ... NoiseNook is currently in development and this is an alpha build... </p>
-                <br>
                 <p><strong>NoiseNook</strong> is an advanced <strong>web-based noise synthesizer</strong> designed to help you <strong>block out external noise</strong> and <strong>boost concentration</strong>. Whether you're studying, working, or simply looking for peace, NoiseNook offers full customization with a variety of noise filters to create the perfect sound environment.</p>
                 <p>One of NoiseNook’s primary goals is to provide users with the ability to <strong>tweak and fine-tune sound parameters</strong>. By adjusting the noise frequencies, volumes, and filters, you can craft the most <strong>tailored noise experience</strong> to suit your preferences and maximize focus.</p>
                 <p>Simply press <strong>Start Audio</strong> to begin. You can also <strong>save and load</strong> your favorite settings locally for quick access. The <strong>Add Filter</strong> feature allows you to add new noise filters, which you can fully tweak and adjust to suit your specific needs.</p>
                 <p>Experience distraction-free focus with NoiseNook!</p>
                 <p>For questions, suggestions, feedback write n0is3n00k@gmail.com</p>
+                <p>NoiseNook is currently in development and this is an alpha build</p>
+                <p>As it's in development, if you're experiencing problems with presets use the button to clear the local saves.</p>
             </div>
         </div>
 
