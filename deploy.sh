@@ -1,4 +1,3 @@
-
 echo  "\n"
 echo Pulling latest master
 (cd /root/dev/WebNoiser/ ; git pull)
