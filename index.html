@@ -10,15 +10,23 @@
 </head>
 <body>
     <div class="container-fluid">
+
+        <div class="row mt-5 mb-2 d-flex justify-content-center" id="">
+            <div class="d-flex align-items-center flex-column control-icon-container">
+                <img src="img/play.svg" id="play-button" class="control-icon" alt="" title="Play and stop audio">
+            </div>
+            <div class="d-flex align-items-center flex-column control-icon-container">
+                <img src="img/floppy-disk.svg" id="save-button" alt="" class="control-icon" title="Save current settings">
+            </div>
+            <div class="d-flex align-items-center flex-column control-icon-container">
+                <img src="img/share.svg" id="share-button" alt="" class="control-icon" title="Share your current preset with a friend">
+            </div>
+        </div>
+
         <div class="row" id="preset-controls">
             <div class="col d-flex align-items-center flex-column">
-                <div class="align-self-start" id="preset-container">
-                    <img src="img/floppy-disk.svg" alt="" class="control-icon" id="save-button">
-                    <img src="img/play.svg" id="play-button" class="control-icon" alt="">
+                <div class="" id="preset-container">
                 </div>
-            </div>
-            <div class="col d-flex align-items-end flex-column">
-                <button class="my-button" id="clear-local-storage">Clear All Presets</button>
             </div>
         </div>
         
@@ -53,7 +61,7 @@
             </div>
         </div>
 
-        <!--<script type="module" src="src/index.js" ></script>-->
+        <script type="module" src="src/index.js" ></script>
 
         <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
         <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>

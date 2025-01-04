@@ -8,11 +8,12 @@ class Controller {
         this.model = new Model();
         this.view = new View();
         this.noiseSynth = new NoiseSynth();
+
+        this.view.bindAddFilterButton(this.handleAddFilterButton.bind(this));
         
         this.view.bindPlayButton(this.handlePlayButton.bind(this));
-        this.view.bindAddFilterButton(this.handleAddFilterButton.bind(this));
         this.view.bindSaveButton(this.handleSaveButton.bind(this));
-        this.view.bindClearLocalStorageButton(this.handleClearLocalStorageButton.bind(this));
+        this.view.bindShareButton(this.handleShareButton.bind(this));
 
         this.view.createVolumeControl(this.handleVolumeChange.bind(this), this.model.getCurrentData().vol);
         this.view.createOnePoleControl(this.handleOnePoleChange.bind(this), this.model.getCurrentData().lpf1p);
@@ -167,9 +168,13 @@ class Controller {
         this.saveAllValues();
     }
 
-    handleAddPreset(name){
-        // const name = Date.now();
+    handleAddPreset(name) {
         this.setNewPreset(name);
+    }
+
+    handleShareButton() {
+        let shareLink = this.model.getSaveLink();
+        console.log(shareLink);
     }
 
     handleRemovePreset(name) {

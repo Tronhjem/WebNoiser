@@ -5,9 +5,12 @@ import Selector from "./Selector.js";
 
 class View {
     constructor() {
-        this.playButton = document.getElementById("play-button");
         this.addFilterButton = document.getElementById("add-filter-button");
+
+        this.playButton = document.getElementById("play-button");
         this.saveButton = document.getElementById("save-button");
+        this.shareButton = document.getElementById("share-button");
+
         this.clearLocalStorageButton = document.getElementById("clear-local-storage");
         this.filterControlsContainer = document.getElementById("filter-controls-container");
         this.coreControls = document.getElementById("core-controls");
@@ -68,6 +71,12 @@ class View {
 
     bindSaveButton(handler) {
         this.saveButton.addEventListener("click", event => {
+            handler(event.target.value);
+        });
+    }
+
+    bindShareButton(handler) {
+        this.shareButton.addEventListener("click", event => {
             handler(event.target.value);
         });
     }

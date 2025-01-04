@@ -58,24 +58,6 @@ body {
     -webkit-appearance: none;
 }
 
-#save-button {
-    position:absolute;
-    top: -0.1rem;
-    left: 11.5rem;
-    margin-left: 0.4rem;
-    height: 2.7rem;
-    cursor: pointer; 
-}
-
-#play-button {
-    position:absolute;
-    top: -0.1rem;
-    left: 14.9rem;
-    margin-left: 0.4rem;
-    height: 2.7rem;
-    cursor: pointer; 
-}
-
 .my-other-button{
     background-color: var(--bgcolor);
     transition: 0.1s ease;
@@ -95,8 +77,20 @@ body {
     opacity: 0.4;
 }
 
+.control-icon-container{
+    width: 4rem;
+    height: 4rem;
+}
+
+.control-icon{
+    height: 2.7rem;
+    cursor: pointer; 
+    transition: 0.3s ease-out;
+}
+
 .control-icon:active {
     opacity: 0.4;
+    transition: 0.0s ease-out;
 }
 
 .my-other-button:active {
