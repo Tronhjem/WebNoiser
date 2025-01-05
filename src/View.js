@@ -22,6 +22,10 @@ class View {
         this.advancedControlContainer = document.getElementById("advanced-control-container");
         this.advancedControlContainer.style.display = "none";
 
+        this.shareModal = new bootstrap.Modal(document.getElementById('shareModal'), {})
+        this.shareMoalClose = document.getElementById("share-modal-close");
+        this.shareMoalClose.addEventListener("click", this.hideShareLink.bind(this));
+
         this.presetSelector = null;
         this.volumeDial = null;
         this.onePoleDial = null;
@@ -91,6 +95,14 @@ class View {
         while (this.filterControlsContainer.firstChild) {
             this.filterControlsContainer.removeChild(this.filterControlsContainer.firstChild);
         }
+    }
+
+    showShareLink(){
+        this.shareModal.show();
+    }
+
+    hideShareLink(){
+        this.shareModal.hide();
     }
 
     createVolumeControl(volumeChangedCallback, initValue = 0.5){

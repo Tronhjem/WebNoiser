@@ -11,8 +11,22 @@ body {
     font-size: 0.9rem;
 }
 
-.button-row{
-    margin: 4rem;
+#share-link{
+    color: black;
+    width: 100%;
+    height: 10rem;
+}
+
+.margin-top-4{
+    margin: 3rem;
+}
+
+.margin-top-2{
+    margin: 2rem;
+}
+
+.text{
+    color: var(--contrastColor);
 }
 
 #about{
@@ -23,6 +37,23 @@ body {
 #about h1{
     font-size: 1.8rem;
     padding: 2rem;
+}
+
+.custom-modal{
+    color: var(--contrastColor);
+    background-color: var(--bgcolor) !important;
+}
+
+.modal-text-area{
+    color: var(--contrastColor) !important;
+    background-color: var(--bgcolor) !important;
+    min-height: 30vh !important;
+    border: none;
+}
+
+.my-modal-footer{
+    border-top: none !important;
+
 }
 
 .my-button{
@@ -83,7 +114,7 @@ body {
 }
 
 .control-icon{
-    height: 2.7rem;
+    height: 2.3rem;
     cursor: pointer; 
     transition: 0.3s ease-out;
 }

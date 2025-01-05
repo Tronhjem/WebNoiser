@@ -175,6 +175,9 @@ class Controller {
     handleShareButton() {
         let shareLink = this.model.getSaveLink();
         console.log(shareLink);
+        let shareLinkElement = document.getElementById("share-link");
+        shareLinkElement.value = shareLink;
+        this.view.showShareLink();
     }
 
     handleRemovePreset(name) {

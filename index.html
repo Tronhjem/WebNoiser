@@ -11,7 +11,18 @@
 <body>
     <div class="container-fluid">
 
-        <div class="row mt-5 mb-2 d-flex justify-content-center" id="">
+        <!-- <div class="row mb-0 mt-5 d-flex align-items-center flex-column" id="">
+            <p class="text mb-1">Presets:</p>
+        </div> -->
+
+        <div class="row mt-5" id="preset-controls">
+            <div class="col d-flex align-items-center flex-column">
+                <div class="" id="preset-container">
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-5 d-flex justify-content-center">
             <div class="d-flex align-items-center flex-column control-icon-container">
                 <img src="img/play.svg" id="play-button" class="control-icon" alt="" title="Play and stop audio">
             </div>
@@ -23,17 +34,11 @@
             </div>
         </div>
 
-        <div class="row" id="preset-controls">
-            <div class="col d-flex align-items-center flex-column">
-                <div class="" id="preset-container">
-                </div>
-            </div>
-        </div>
         
-        <div class="row button-row" id="core-controls">
+        <div class="row margin-top-4" id="core-controls">
         </div>
 
-        <div class="row button-row" id="easy-controls">
+        <div class="row margin-top-4" id="easy-controls">
         </div>
 
         <div class="row advanced-control-button">
@@ -58,6 +63,21 @@
                 <p>For questions, suggestions, feedback write n0is3n00k@gmail.com</p>
                 <p>NoiseNook is currently in development and this is an alpha build</p>
                 <p>As it's in development, if you're experiencing problems with presets use the button to clear the local saves.</p>
+            </div>
+        </div>
+
+        <!-- Modal -->
+        <div class="modal fade" id="shareModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content custom-modal">
+                <div class="modal-body">
+                    <p>Share the link with a friend:</p>
+                    <textarea class="modal-text-area" type="text" id="share-link"></textarea>
+                </div>
+                <div class="modal-footer my-modal-footer">
+                    <button type="button" id="share-modal-close" class="my-button">Close</button>
+                </div>
+                </div>
             </div>
         </div>
 
