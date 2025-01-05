@@ -197,6 +197,10 @@ class View {
     updateSelectorView(){
         this.presetSelector.renderOptions();
     }
+
+    getScreenWidth() {
+        return window.innerWidth;
+    }
 }
 
 export default View;

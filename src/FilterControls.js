@@ -15,6 +15,10 @@ class FilterControls {
 
         const typeSelector = document.createElement("select");
         typeSelector.classList.add("filter-type-selector");
+        if (window.innerWidth < 540)
+        {
+            typeSelector.classList.add("mobile-margin-button"); 
+        }
         constantFilterTypes.forEach(type => {
             const option = document.createElement("option");
             option.value = type;
@@ -35,6 +39,11 @@ class FilterControls {
         removeButton.classList.add("filter-button");
         removeButton.classList.add("my-button");
         removeButton.textContent = "Remove";
+
+        if (window.innerWidth < 540)
+        {
+            removeButton.classList.add("mobile-margin-button"); 
+        }
         removeButton.addEventListener("click", (event) => {
             this.container.remove();
             OnRemoveFilter(this.filterData);
