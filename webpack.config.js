@@ -20,6 +20,7 @@ module.exports = {
       patterns: [
         { from: './src/AudioWorkletProcessors/', to: './src/AudioWorkletProcessors/' }, // Adjust 'source' and 'dest' to your needs
         { from: './css/mainStyle.css', to: './css/mainStyle.css' }, // Adjust 'source' and 'dest' to your needs
+        { from: './img/', to: './img/' }
       ],
     }),
   ],
