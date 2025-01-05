@@ -25,6 +25,10 @@ body {
     margin: 2rem;
 }
 
+.button-row{
+    margin: 4rem;
+}
+
 .text{
     color: var(--contrastColor);
 }
