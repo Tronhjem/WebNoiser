@@ -1,31 +1,54 @@
 import PresetHandler from "./PresetHandler.js";
-import View from "./View.js";
 import NoiseSynth from "./NoiseSynth.js";
+import Dial from "./Dial.js";
+import FilterControls from "./FilterControls.js";
+import Selector from "./Selector.js";
+
 import {dialMax, FilterMinMax, biquadLowPass, biquadHighPass, saveParamsName} from "./Constants.js";
 
 class Controller {
     constructor() {
         this.presetHandler = new PresetHandler();
-        this.view = new View();
         this.noiseSynth = new NoiseSynth();
 
-        this.view.bindAddFilterButton(this.handleAddFilterButton.bind(this));
-        
-        this.view.bindPlayButton(this.handlePlayButton.bind(this));
-        this.view.bindSaveButton(this.handleSaveButton.bind(this));
-        this.view.bindShareButton(this.handleShareButton.bind(this));
+        // CONTROLS
+        this.clearLocalStorageButton = document.getElementById("clear-local-storage");
+        this.filterControlsContainer = document.getElementById("filter-controls-container");
+        this.coreControls = document.getElementById("core-controls");
+        this.easyControls = document.getElementById("easy-controls");
+        this.presetControls = document.getElementById("preset-controls");
 
-        this.view.createVolumeControl(this.handleVolumeChange.bind(this), this.presetHandler.getCurrentData().vol);
-        this.view.createOnePoleControl(this.handleOnePoleChange.bind(this), this.presetHandler.getCurrentData().lpf1p);
-        this.view.createSpeechMaskControl(this.handleSpeechMaskChange.bind(this), this.presetHandler.getCurrentData().sMask);
+        this.advancedControlToggle = document.getElementById("advanced-control-toggle");
+        this.advancedControlToggle.addEventListener("click", this.toggleAdvancedControls.bind(this));
+        this.advancedControlContainer = document.getElementById("advanced-control-container");
+        this.advancedControlContainer.style.display = "none";
 
-        this.view.createLoControl(this.handleLoControl.bind(this), this.presetHandler.getCurrentData().lo);
-        this.view.createMidControl(this.handleMidControl.bind(this), this.presetHandler.getCurrentData().md);
-        this.view.createHiControl(this.handleHiControl.bind(this), this.presetHandler.getCurrentData().hi);
+        this.shareModal = new bootstrap.Modal(document.getElementById('shareModal'), {})
+        this.shareMoalClose = document.getElementById("share-modal-close");
+        this.shareMoalClose.addEventListener("click", this.hideShareLink.bind(this));
+
+        this.addFilterButton = document.getElementById("add-filter-button");
+        this.playButton = document.getElementById("play-button");
+        this.saveButton = document.getElementById("save-button");
+        this.shareButton = document.getElementById("share-button");
+
+        this.addFilterButton.addEventListener("click", this.handleAddFilterButton.bind(this));
+        this.playButton.addEventListener("click", this.handlePlayButton.bind(this));
+        this.saveButton.addEventListener("click", this.handleSaveButton.bind(this));
+        this.shareButton.addEventListener("click", this.handleShareButton.bind(this));
+
+        this.createVolumeControl(this.handleVolumeChange.bind(this), this.presetHandler.getCurrentData().vol);
+        this.createOnePoleControl(this.handleOnePoleChange.bind(this), this.presetHandler.getCurrentData().lpf1p);
+        this.createSpeechMaskControl(this.handleSpeechMaskChange.bind(this), this.presetHandler.getCurrentData().sMask);
+
+        this.createLoControl(this.handleLoControl.bind(this), this.presetHandler.getCurrentData().lo);
+        this.createMidControl(this.handleMidControl.bind(this), this.presetHandler.getCurrentData().md);
+        this.createHiControl(this.handleHiControl.bind(this), this.presetHandler.getCurrentData().hi);
+
 
         this.loadAllValues();
 
-        this.view.createPresetSelector(this.presetHandler.data, 
+        this.createPresetSelector(this.presetHandler.data, 
                                         this.handlePresetChange.bind(this), 
                                         this.handleAddPreset.bind(this),
                                         this.handleRemovePreset.bind(this));
@@ -38,7 +61,7 @@ class Controller {
             this.loadAllValues();
         }
 
-        this.view.updateSelectorView();
+        this.updateSelectorView();
     }
 
     async startAudio(){
@@ -50,6 +73,140 @@ class Controller {
             this.noiseSynth.setBiqadHighpassFilterFrequency(biquadHighPass);
             this.noiseSynth.setOnePoleFrequency(this.presetHandler.getCurrentData().lpf1p);
             this.noiseSynth.setSpeechMaskGain(this.presetHandler.getCurrentData().sMask);
+        }
+    }
+
+    updateAllDials(data){
+        this.volumeDial.setDial(data.vol);
+        this.onePoleDial.setDial(data.lpf1p);
+        this.speechMaskDial.setDial(data.sMask);
+
+        this.loDial.setDial(data.lo);
+        this.midDial.setDial(data.md);
+        this.hiDial.setDial(data.hi);
+    }
+
+    // =====================================================================================
+    // CREATE CONTROLS 
+    // =====================================================================================
+    //
+
+    createVolumeControl(volumeChangedCallback, initValue = 0.5){
+        const container = document.createElement("div");
+        container.classList.add("volume-control");
+        container.classList.add("core-dial-control");
+
+        this.volumeDial = new Dial(0, 1, initValue, false, volumeChangedCallback, null, 2, "Volume", "");
+
+        container.appendChild(this.volumeDial.getContainer());
+        this.coreControls.appendChild(container);
+    }
+
+    createOnePoleControl(onePoleChangedCallback, initValue = 1500){
+        const container = document.createElement("div");
+        container.classList.add("onepole-control");
+        container.classList.add("core-dial-control");
+
+        this.onePoleDial = new Dial(FilterMinMax.frequency.min, FilterMinMax.frequency.max, initValue, true, onePoleChangedCallback, null, 2, "Smooth", "Hz");
+
+        container.appendChild(this.onePoleDial.getContainer());
+        this.coreControls.appendChild(container);
+    }
+
+    createLoControl(callback, initValue){
+        const container = document.createElement("div");
+        container.classList.add("lowShelf-control");
+        container.classList.add("easy-control");
+        container.classList.add("core-dial-control");
+
+        this.loDial = new Dial(FilterMinMax.gain.min, FilterMinMax.gain.max, initValue, false, callback, null, 2, "Low", "dB");
+
+        container.appendChild(this.loDial.getContainer());
+        this.easyControls.appendChild(container);
+    }
+
+    createMidControl(callback, initValue){
+        const container = document.createElement("div");
+        container.classList.add("mid-control");
+        container.classList.add("easy-control");
+        container.classList.add("core-dial-control");
+
+        this.midDial = new Dial(FilterMinMax.gain.min, FilterMinMax.gain.max, initValue, false, callback, null, 2, "Mid", "dB");
+
+        container.appendChild(this.midDial.getContainer());
+        this.easyControls.appendChild(container);
+    }
+
+    createHiControl(callback, initValue){
+        const container = document.createElement("div");
+        container.classList.add("hi-control");
+        container.classList.add("easy-control");
+        container.classList.add("core-dial-control");
+
+        this.hiDial = new Dial(FilterMinMax.gain.min, FilterMinMax.gain.max, initValue, false, callback, null, 2, "High", "dB");
+
+        container.appendChild(this.hiDial.getContainer());
+        this.easyControls.appendChild(container);
+    }
+
+    createSpeechMaskControl(callback, initValue){
+        const container = document.createElement("div");
+        container.classList.add("speech-mask-control");
+        container.classList.add("core-dial-control");
+
+        this.speechMaskDial = new Dial(FilterMinMax.gain.min, FilterMinMax.gain.max, initValue, false, callback, null, 2, "Speech Mask", "dB");
+
+        container.appendChild(this.speechMaskDial.getContainer());
+        this.coreControls.appendChild(container);
+    }
+
+    createFilterControls(filterData, changeFrequencyCallback, changeQCallback, changeGainCallback, changeTypeCallback, OnRemoveFilter) {
+        const filterControls = new FilterControls(filterData, changeFrequencyCallback, changeQCallback, changeGainCallback, changeTypeCallback, OnRemoveFilter);
+        this.filterControlsContainer.appendChild(filterControls.getContainer());
+        return filterControls.getContainer();
+    }
+
+    // =====================================================================================
+    // HANDLERS 
+    // =====================================================================================
+
+    createPresetSelector(data, changePresetCallback, addPresetCallback, removePresetCallback){
+        this.presetSelector = new Selector(data, changePresetCallback, addPresetCallback, removePresetCallback);
+        const presetContainer = document.getElementById("preset-container");
+        presetContainer.insertBefore(this.presetSelector.getContainer(), presetContainer.firstChild);
+    }
+
+    setPresetSelectorName(name){
+        this.presetSelector.setValue(name);
+    }
+
+    addNewPresetName(name){
+        this.presetSelector.addOption(name);
+    }
+
+    updateSelectorView(){
+        this.presetSelector.renderOptions();
+    }
+
+    getScreenWidth() {
+        return window.innerWidth;
+    }
+    showShareLink(){
+        this.shareModal.show();
+    }
+
+    hideShareLink(){
+        this.shareModal.hide();
+    }
+
+    toggleAdvancedControls(){
+        if(this.advancedControlToggle.textContent === "Show Advanced Controls"){
+            this.advancedControlToggle.textContent = "Hide Advanced Controls";
+            this.advancedControlContainer.style.display = "block";
+        } 
+        else {
+            this.advancedControlToggle.textContent = "Show Advanced Controls";
+            this.advancedControlContainer.style.display = "none";
         }
     }
 
@@ -106,11 +263,12 @@ class Controller {
         if(!this.noiseSynth.isPlaying){
             this.startAudio();
             this.noiseSynth.setPlayState(true);
+            this.playButton.attributes.src.value = "img/stop.svg";
         }
         else{
             this.noiseSynth.setPlayState(false);
+            this.playButton.attributes.src.value = "img/play.svg";
         }
-        this.view.togglePlayIcon(this.noiseSynth.isPlaying);
     }
 
     handleAddFilterButton() {
@@ -126,13 +284,19 @@ class Controller {
 
         this.noiseSynth.addFilterRuntime(filterData);
 
-        this.view.createFilterControls(filterData, 
+        this.createFilterControls(filterData, 
             this.handleFilterFrequencyDialChange.bind(this), 
             this.handleFilterQDialChange.bind(this), 
             this.handleFilterGainDialChange.bind(this),
             this.handleFilterTypeChange.bind(this),
             this.handleRemoveFilter.bind(this)
         );
+    }
+
+    clearFilterControls() {
+        while (this.filterControlsContainer.firstChild) {
+            this.filterControlsContainer.removeChild(this.filterControlsContainer.firstChild);
+        }
     }
 
     handleFilterFrequencyDialChange(value, filterData) {
@@ -180,22 +344,22 @@ class Controller {
         console.log(shareLink);
         let shareLinkElement = document.getElementById("share-link");
         shareLinkElement.value = shareLink;
-        this.view.showShareLink();
+        this.showShareLink();
     }
 
     handleRemovePreset(name) {
         this.presetHandler.removePreset(name);
-        this.view.updateSelectorView();
+        this.updateSelectorView();
     }
 
     setNewPreset(name) {
         if(!this.presetHandler.data.presets[name]) {
             this.presetHandler.newPreset(name);
-            this.view.addNewPresetName(name);
+            this.addNewPresetName(name);
         }
         
         this.presetHandler.setCurrentPreset(name);
-        this.view.setPresetSelectorName(name);
+        this.setPresetSelectorName(name);
     }
 
     handleClearLocalStorageButton() {
@@ -218,14 +382,14 @@ class Controller {
 
     loadAllValues() {
         this.noiseSynth.clear();
-        this.view.clearFilterControls();
+        this.clearFilterControls();
 
         const keys = Object.keys(this.presetHandler.getCurrentData().fd);
         keys.forEach(key => {
             const filterData = this.presetHandler.getCurrentData().fd[key];
             this.noiseSynth.addFilterRuntime(filterData);
 
-            this.view.createFilterControls(filterData, 
+            this.createFilterControls(filterData, 
                 this.handleFilterFrequencyDialChange.bind(this), 
                 this.handleFilterQDialChange.bind(this), 
                 this.handleFilterGainDialChange.bind(this),
@@ -235,7 +399,7 @@ class Controller {
         });
 
         this.noiseSynth.updateAudioGraph();
-        this.view.updateAllDials(this.presetHandler.getCurrentData());
+        this.updateAllDials(this.presetHandler.getCurrentData());
     }
 }
 
