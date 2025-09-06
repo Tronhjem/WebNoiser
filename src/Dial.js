@@ -119,7 +119,8 @@ class Dial {
             const deltaY = this.startY - mouseEvent.clientY;
             this.value += deltaY * 1;
             this.value = Math.max(dialMin, Math.min(dialMax, this.value));
-            this.startY = event.clientY;
+            this.startY = mouseEvent.clientY;
+
             this.updateDialOnDrag();
         }
     }

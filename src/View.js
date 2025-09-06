@@ -1,4 +1,4 @@
-import {constantFilterTypes, FilterMinMax, dialMin, dialMax} from "./Constants.js"
+import {FilterMinMax} from "./Constants.js"
 import Dial from "./Dial.js";
 import FilterControls from "./FilterControls.js";
 import Selector from "./Selector.js";

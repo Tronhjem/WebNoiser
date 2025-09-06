@@ -1,6 +1,6 @@
 import { saveParamsName, initData } from "./Constants.js";
 
-class Model {
+class PresetHandler {
     constructor() {
         this.data = {};
         this.tempData = {};
@@ -104,4 +104,4 @@ class Model {
     }
 }
 
-export default Model;
+export default PresetHandler;
