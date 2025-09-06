@@ -105,11 +105,11 @@ class Selector {
         return this.container;
     }
 
-    addOption(option) {
+    addOption() {
         this.renderOptions();
     }
 
-    removeOption(option) {
+    removeOption() {
         this.renderOptions();
     }
 

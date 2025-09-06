@@ -31,7 +31,7 @@ class MyBiquadFilter extends AudioWorkletProcessor
     static get parameterDescriptors() {
         return [
             {
-                name: "freqency",
+                name: "frequency",
                 defaultValue: 440.0,
                 minValue: 20.0,
                 maxValue: 20000.0
@@ -75,7 +75,7 @@ class MyBiquadFilter extends AudioWorkletProcessor
 
     process(inputs, outputs, parameters) 
     {
-        this.Fc = parameters.freqency[0];
+        this.Fc = parameters.frequency[0];
         this.filterType = parameters.filterType[0];
         this.setCoef();
         const input = inputs[0];

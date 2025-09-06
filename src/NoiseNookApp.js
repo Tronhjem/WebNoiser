@@ -4,7 +4,7 @@ import Dial from "./Dial.js";
 import FilterControls from "./FilterControls.js";
 import Selector from "./Selector.js";
 
-import {dialMax, VolMinMax, FilterMinMax, biquadLowPass, biquadHighPass, saveParamsName} from "./Constants.js";
+import {dialMax, VolMinMax, FilterMinMax, saveParamsName} from "./Constants.js";
 
 class NoiseNookApp {
     constructor() {
@@ -32,7 +32,7 @@ class NoiseNookApp {
         this.saveButton = document.getElementById("save-button");
         this.shareButton = document.getElementById("share-button");
 
-        this.addFilterButton.addEventListener("click", this.addFilter.bind(this));
+        this.addFilterButton.addEventListener("click", this.handleAddFilter.bind(this));
         this.playButton.addEventListener("click", this.handlePlayButton.bind(this));
         this.saveButton.addEventListener("click", this.presetHandler.saveValues.bind(this.presetHandler));
         this.shareButton.addEventListener("click", this.handleShareButton.bind(this));
@@ -86,8 +86,6 @@ class NoiseNookApp {
         {
             await this.noiseSynth.initialize(this.presetHandler.getCurrentData());
             this.noiseSynth.setVolume(this.presetHandler.getCurrentData().vol);
-            this.noiseSynth.setBiqadLowpassFilterFrequency(biquadLowPass);
-            this.noiseSynth.setBiqadHighpassFilterFrequency(biquadHighPass);
             this.noiseSynth.setOnePoleFrequency(this.presetHandler.getCurrentData().lpf1p);
             this.noiseSynth.setSpeechMaskGain(this.presetHandler.getCurrentData().sMask);
         }
@@ -212,6 +210,11 @@ class NoiseNookApp {
         }
     }
 
+    // doing this to bind without passing the event to the addFilter
+    handleAddFilter() {
+        this.addFilter();
+    }
+
     addFilter(filterType = "lowpass", 
             freq = FilterMinMax.frequency.max, 
             q = FilterMinMax.Q.min, 
@@ -241,7 +244,7 @@ class NoiseNookApp {
         const max = FilterMinMax.frequency.max;
         const setValue = Math.pow(10, (value / dialMax) * (Math.log10(max) - Math.log10(min)) + Math.log10(min));
 
-        this.noiseSynth.updateFilter(setValue, filterData, "frequency", true);
+        this.noiseSynth.setFilterProperty(setValue, filterData, "frequency", true);
         this.presetHandler.getCurrentData().fd[filterData.id].F = setValue;
     }
 
@@ -250,7 +253,7 @@ class NoiseNookApp {
         const max = FilterMinMax.Q.max;
         const setValue = (value / dialMax) * (max - min) + min;
 
-        this.noiseSynth.updateFilter(setValue, filterData, "Q", false);
+        this.noiseSynth.setFilterProperty(setValue, filterData, "Q", false);
         this.presetHandler.getCurrentData().fd[filterData.id].Q = setValue;
     }
 
@@ -259,12 +262,12 @@ class NoiseNookApp {
         const max = FilterMinMax.gain.max;
         const setValue = (value / dialMax) * (max - min) + min;
 
-        this.noiseSynth.updateFilter(setValue, filterData, "gain", false);
+        this.noiseSynth.setFilterProperty(setValue, filterData, "gain", false);
         this.presetHandler.getCurrentData().fd[filterData.id].G = setValue;
     }   
 
     handleFilterTypeChange(value, filterData) {
-        this.noiseSynth.updateFilter(value, filterData, "filterType", false);
+        this.noiseSynth.setFilterProperty(value, filterData, "filterType", false);
         this.presetHandler.getCurrentData().fd[filterData.id].T = value;
     }   
 

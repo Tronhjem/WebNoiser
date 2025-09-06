@@ -16,34 +16,24 @@ class Dial {
 
         this.container = document.createElement("div");
         this.container.classList.add("dial-container");
+
+        this.container.innerHTML = `
+            <input class="dial-input" type="number" style="display: none;">
+            <div class="dial-value-text">0.56</div>
+            <div class="dial-function-text">Volume</div>
+            <div class="dial">
+                <div class="dial-indicator" style="transform: translate(-50%, -100%) rotate(16.2deg);">
+                    <div class="dial-indicator-tip">
+                    </div>
+                </div>
+            </div>
+        `;
         
-        this.input = document.createElement("input");
-        this.input.classList.add("dial-input");
-        this.input.setAttribute('type', 'number');
-        this.input.style.display = 'none';
-        this.container.appendChild(this.input);
-
-        this.dial = document.createElement("div");
-        this.dial.classList.add("dial");
-
-        this.indicator = document.createElement("div");
-        this.indicator.classList.add("dial-indicator");
-        this.dial.appendChild(this.indicator);
-
-        this.circle = document.createElement("div");
-        this.circle.classList.add("dial-indicator-tip");
-        this.indicator.appendChild(this.circle);
-
-        this.textElement = document.createElement("div");
-        this.textElement.classList.add("dial-value-text");
-        this.textElement.textContent = initValue;
-        this.container.appendChild(this.textElement);
-
-        this.functionText = document.createElement("div");
-        this.functionText.classList.add("dial-function-text");
-        this.functionText.textContent = name;
-        this.container.appendChild(this.functionText);
-        this.container.appendChild(this.dial);
+        this.dial = this.container.querySelector(".dial");
+        this.indicator = this.container.querySelector(".dial-indicator");
+        this.input = this.container.querySelector(".dial-input");
+        this.textElement = this.container.querySelector(".dial-value-text");
+        this.container.querySelector(".dial-function-text").innerHTML = name;
 
         this.isDragging = false;
         this.startY = 0;
@@ -62,7 +52,6 @@ class Dial {
 
         document.addEventListener("mouseup", this.mouseUp.bind(this));
         document.addEventListener("touchend", this.touchEnd.bind(this));
-
 
         this.dial.addEventListener('click', this.showInput.bind(this));
         this.input.addEventListener('keydown', this.handleInputKeydown.bind(this));
@@ -162,7 +151,7 @@ class Dial {
     updateValueFromInput() {
         const newValue = parseFloat(this.input.value);
         if (!isNaN(newValue)) {
-            let value = Math.max(this.min, Math.min(this.max, newValue));
+            const value = Math.max(this.min, Math.min(this.max, newValue));
             this.setDial(value);
         }
 
@@ -180,13 +169,11 @@ class Dial {
         return Math.floor(value * factor) / factor;
     }
 
-    /// Sets the dial and sends the change callback
     updateDialOnDrag() {
         this.setDialIndicator();
         this.changeCallback(this.value, this.filterData)
     };
 
-    /// Sets the dial without the change callback
     setDial(value) {
 
         if (this.isLog) {
@@ -206,7 +193,9 @@ class Dial {
         let textValue = 0;
 
         if(this.isLog){
-            textValue = Math.floor(Math.pow(10, (this.value / dialMax) * (Math.log10(this.max) - Math.log10(this.min)) + Math.log10(this.min)));
+            textValue = Math.floor(Math.pow(10, (this.value / dialMax) * 
+                        (Math.log10(this.max) - Math.log10(this.min)) + 
+                        Math.log10(this.min)));
         } 
         else {
             textValue = this.roundDown((this.value / dialMax) * (this.max - this.min) + this.min, this.decimals);
@@ -226,4 +215,5 @@ class Dial {
         }
     }
 }
+
 export default Dial;

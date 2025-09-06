@@ -1,4 +1,4 @@
-import {MyBiquadFilterTypes, lowShelfFreq, midFreq, highShelfFreq} from "./Constants.js"
+import {MyBiquadFilterTypes, lowShelfFreq, midFreq, highShelfFreq, biquadLowPass, biquadHighPass} from "./Constants.js"
 
 class NoiseSynth{
     constructor(){
@@ -12,8 +12,10 @@ class NoiseSynth{
         this.mid = null;
         this.high = null;
         this.speechFilters = [];
-        this.analyser = null;
-        this.bufferLength = 0;
+
+        // this.analyser = null;
+        // this.bufferLength = 0;
+
         this.filters = {};
         this.isInitialized = false;
 
@@ -53,6 +55,8 @@ class NoiseSynth{
         // this.dataArray = new Uint8Array(bufferLength);
 
         this.biquadHighPassFilter.parameters.get("filterType").setValueAtTime(MyBiquadFilterTypes.HIGHPASS, this.audioContext.currentTime);
+        this.biquadHighPassFilter.parameters.get("frequency").setValueAtTime(biquadHighPass, this.audioContext.currentTime);
+        this.biquadLowPassFilter.parameters.get("frequency").setValueAtTime(biquadLowPass, this.audioContext.currentTime);
 
         this.low = this.createFilter({T: 'lowshelf', F: lowShelfFreq, Q: 1, G: data.lo});
         this.mid = this.createFilter({T: 'peaking', F: midFreq, Q: 0.5, G: data.md});
@@ -69,6 +73,7 @@ class NoiseSynth{
         });
 
         this.isInitialized = true;
+
         this.connectAll();
         this.isPlaying = true;
     }
@@ -87,6 +92,61 @@ class NoiseSynth{
         return minFrequency * Math.pow(maxFrequency / minFrequency, value);
     }
 
+    addFilterRuntime(filterData) {
+        if (!this.isInitialized) {
+            return;
+        }
+
+        const filter = this.createFilter(filterData);
+
+        this.disconnectAll();
+        this.filters[filterData.id] = filter;
+        this.connectAll();
+
+        return filter;
+    }
+
+    addFilterOffline(filterData) {
+        if (!this.audioContext){
+            return;
+        }
+
+        const filter = this.createFilter(filterData);
+        this.filters[filterData.id] = filter;
+    }
+
+    createFilter(filterData) {
+        const filter = this.audioContext.createBiquadFilter();
+        filter.type = filterData.T;
+        filter.frequency.value = filterData.F;
+        filter.Q.value = filterData.Q;
+        filter.gain.value = filterData.G;    
+        
+        return filter;
+    }
+
+    removeFilter(filter) {
+        if (!this.isInitialized) {
+            return;
+        }
+
+        delete this.filters[filter.id];
+        this.updateAudioGraph();
+    }
+
+    setFilterProperty(value, filterData, property) { 
+        if (!this.isInitialized) {
+            return;
+        }
+
+        if (property != "filterType") {
+            this.filters[filterData.id][property].setValueAtTime(value, this.audioContext.currentTime);
+        }
+        else{
+            this.filters[filterData.id].type = value;
+        }
+    }
+
     setVolume(value){
         if (!this.isInitialized) {
             return;
@@ -101,75 +161,7 @@ class NoiseSynth{
         this.onePoleLowpass.parameters.get("freqency").setValueAtTime(value, this.audioContext.currentTime);
     }
 
-    setBiqadLowpassFilterFrequency(value){
-        if (!this.isInitialized) {
-            return;
-        }
-        this.biquadLowPassFilter.parameters.get("freqency").setValueAtTime(value, this.audioContext.currentTime);
-    }
-
-    setBiqadHighpassFilterFrequency(value){
-        if (!this.isInitialized) {
-            return;
-        }
-        this.biquadHighPassFilter.parameters.get("freqency").setValueAtTime(value, this.audioContext.currentTime);
-    }
-    
-    addFilterRuntime(filterData)
-    {
-        if (!this.isInitialized) {
-            return;
-        }
-
-        const filter = this.createFilter(filterData);
-
-        this.disconnectAll();
-        this.filters[filterData.id] = filter;
-        this.connectAll();
-
-        return filter;
-    }
-
-    addFilterOffline(filterData){
-        if (!this.audioContext){
-            return;
-        }
-        const filter = this.createFilter(filterData);
-        this.filters[filterData.id] = filter;
-    }
-
-    createFilter(filterData){
-        const filter = this.audioContext.createBiquadFilter();
-        filter.type = filterData.T;
-        filter.frequency.value = filterData.F;
-        filter.Q.value = filterData.Q;
-        filter.gain.value = filterData.G;    
-        
-        return filter;
-    }
-
-    removeFilter(filter){
-        if (!this.isInitialized) {
-            return;
-        }
-        delete this.filters[filter.id];
-        this.updateAudioGraph();
-    }
-
-    updateFilter(value, filterData, property){
-        if (!this.isInitialized) {
-            return;
-        }
-
-        if (property != "filterType") {
-            this.filters[filterData.id][property].setValueAtTime(value, this.audioContext.currentTime);
-        }
-        else{
-            this.filters[filterData.id].type = value;
-        }
-    }
-
-    setLoShelfGain(value){
+    setLoShelfGain(value) {
         if (!this.isInitialized) {
             return;
         }
@@ -177,7 +169,7 @@ class NoiseSynth{
         this.low['gain'].setValueAtTime(value, this.audioContext.currentTime);
     }
 
-    setMidGain(value){
+    setMidGain(value) {
         if (!this.isInitialized) {
             return;
         }
@@ -185,7 +177,7 @@ class NoiseSynth{
         this.mid['gain'].setValueAtTime(value, this.audioContext.currentTime);
     }
 
-    setHiShelfGain(value){
+    setHiShelfGain(value) {
         if (!this.isInitialized) {
             return;
         }
@@ -193,7 +185,7 @@ class NoiseSynth{
         this.high['gain'].setValueAtTime(value, this.audioContext.currentTime);
     }
     
-    setSpeechMaskGain(value){
+    setSpeechMaskGain(value) {
         if (!this.isInitialized) {
             return;
         }
@@ -266,33 +258,33 @@ class NoiseSynth{
         this.connectAll();
     }
 
-    drawSpectrum() {
-        if (!this.isInitialized) {
-            return;
-        }
-        if (!canvasCtx){
-            return;
-        }
-        requestAnimationFrame(drawSpectrum);
-
-        analyser.getByteFrequencyData(dataArray);
-
-        canvasCtx.fillStyle = "black";
-        canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
-
-        const barWidth = (canvas.width / bufferLength) * 2.5;
-        let barHeight;
-        let x = 0;
-
-        for (let i = 0; i < bufferLength; i++) {
-            barHeight = dataArray[i];
-
-            canvasCtx.fillStyle = "rgb(" + (barHeight + 100) + ",50,50)";
-            canvasCtx.fillRect(x, canvas.height - barHeight / 2, barWidth, barHeight / 2);
-
-            x += barWidth + 1;
-        }
-    }
+    // drawSpectrum() {
+    //     if (!this.isInitialized) {
+    //         return;
+    //     }
+    //     if (!canvasCtx){
+    //         return;
+    //     }
+    //     requestAnimationFrame(drawSpectrum);
+    //
+    //     analyser.getByteFrequencyData(dataArray);
+    //
+    //     canvasCtx.fillStyle = "black";
+    //     canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
+    //
+    //     const barWidth = (canvas.width / bufferLength) * 2.5;
+    //     let barHeight;
+    //     let x = 0;
+    //
+    //     for (let i = 0; i < bufferLength; i++) {
+    //         barHeight = dataArray[i];
+    //
+    //         canvasCtx.fillStyle = "rgb(" + (barHeight + 100) + ",50,50)";
+    //         canvasCtx.fillRect(x, canvas.height - barHeight / 2, barWidth, barHeight / 2);
+    //
+    //         x += barWidth + 1;
+    //     }
+    // }
 }
 
 export default NoiseSynth;

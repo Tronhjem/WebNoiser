@@ -2,16 +2,26 @@ import Dial from "./Dial.js";
 import { FilterMinMax, constantFilterTypes } from "./Constants.js";
 
 class FilterControls {
-    constructor(filterData, changeFrequencyCallback, changeQCallback, changeGainCallback, changeTypeCallback, OnRemoveFilter) {
+    constructor(filterData, changeFrequencyCallback, changeQCallback, 
+                changeGainCallback, changeTypeCallback, OnRemoveFilter) {
+
         this.container = document.createElement("div");
         this.container.classList.add("filter-controls");
         this.container.classList.add("row");
         this.container.classList.add("button-row");
         this.filterData = filterData;
 
-        this.frequencyDial = new Dial(FilterMinMax.frequency.min, FilterMinMax.frequency.max, this.filterData.F, true, changeFrequencyCallback, this.filterData, 0, "Freq", "Hz");
-        this.qDial = new Dial(FilterMinMax.Q.min, FilterMinMax.Q.max, this.filterData.Q, false, changeQCallback, this.filterData, 2, "Q", "");
-        this.gainDial = new Dial(FilterMinMax.gain.min, FilterMinMax.gain.max, this.filterData.G, false, changeGainCallback, this.filterData, 0, "Gain", "dB");
+        this.frequencyDial = new Dial(FilterMinMax.frequency.min, FilterMinMax.frequency.max, 
+                                     this.filterData.F, true, changeFrequencyCallback, 
+                                     this.filterData, 0, "Freq", "Hz");
+
+        this.qDial = new Dial(FilterMinMax.Q.min, FilterMinMax.Q.max, 
+                              this.filterData.Q, false, changeQCallback, 
+                              this.filterData, 2, "Q", "");
+
+        this.gainDial = new Dial(FilterMinMax.gain.min, FilterMinMax.gain.max, 
+                                 this.filterData.G, false, changeGainCallback, 
+                                 this.filterData, 0, "Gain", "dB");
 
         const typeSelector = document.createElement("select");
         typeSelector.classList.add("filter-type-selector");
@@ -19,6 +29,7 @@ class FilterControls {
         {
             typeSelector.classList.add("mobile-margin-button"); 
         }
+
         constantFilterTypes.forEach(type => {
             const option = document.createElement("option");
             option.value = type;
@@ -44,7 +55,7 @@ class FilterControls {
         {
             removeButton.classList.add("mobile-margin-button"); 
         }
-        removeButton.addEventListener("click", (event) => {
+        removeButton.addEventListener("click", () => {
             this.container.remove();
             OnRemoveFilter(this.filterData);
         });
